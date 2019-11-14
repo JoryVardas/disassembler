@@ -15,57 +15,60 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="disassembler\Registers.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Common.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="disassembler\Prefixes.h">
+    <ClInclude Include="decoder.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="disassembler\Instructions.h">
+    <ClInclude Include="Instructions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="disassembler\ModRM.h">
+    <ClInclude Include="ModRM.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="disassembler\decoder.h">
+    <ClInclude Include="Prefixes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Registers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="testing\catch.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="disassembler\Prefixes.cpp">
+    <ClCompile Include="decoder.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Entrypoint.cpp">
+    <ClCompile Include="InstructionDescriptionList.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="disassembler\Instructions.cpp">
+    <ClCompile Include="InstructionList.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="disassembler\Registers.cpp">
+    <ClCompile Include="InstructionNameList.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="disassembler\decoder.cpp">
+    <ClCompile Include="InstructionOperandEncodingList.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="disassembler\ModRM.cpp">
+    <ClCompile Include="InstructionOperandsList.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="disassembler\InstructionNameList.cpp">
+    <ClCompile Include="Instructions.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="disassembler\InstructionList.cpp">
+    <ClCompile Include="ModRM.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="disassembler\InstructionOperandEncodingList.cpp">
+    <ClCompile Include="Prefixes.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="disassembler\InstructionOperandsList.cpp">
+    <ClCompile Include="Registers.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="disassembler\InstructionDescriptionList.cpp">
+    <ClCompile Include="testing\Entrypoint.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

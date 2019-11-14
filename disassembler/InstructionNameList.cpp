@@ -1,205 +1,131 @@
 #include "Instructions.h"
 
 cstring_t instructionName[] = {
-	"UNKNOWN",//0
+	"UNKNOWN",
 	"AAA",
 	"AAD",
 	"AAM",
 	"AAS",
-	"ADC",//5
+	"ADC",
 	"ADCX",
 	"ADD",
 	"ADDPD",
-	"AADPS",
-	"VADDPS",//10
+	"VADDPD",
+	"ADDPS",
+	"VADDPS",
 	"ADDSD",
 	"VADDSD",
 	"ADDSS",
 	"VADDSS",
-	"ADDSUBPD",//15
+	"ADDSUBPD",
 	"VADDSUBPD",
 	"ADDSUBPS",
 	"VADDSUBPS",
 	"ADOX",
-	"AESDEC",//20
+	"AESDEC",
 	"VAESDEC",
 	"AESDECLAST",
 	"VAESDECLAST",
 	"AESENC",
-	"VAESENC",//25
+	"VAESENC",
 	"AESENCLAST",
 	"VAESENCLAST",
 	"AESIMC",
 	"VAESIMC",
-	"AESKEYGENASSIST",//30
+	"AESKEYGENASSIST",
 	"VAESKEYGENASSIST",
 	"AND",
 	"ANDN",
 	"ANDPD",
-	"VANDPD",//35
+	"VANDPD",
 	"ANDPS",
 	"VANDPS",
 	"ANDNPD",
 	"VANDNPD",
-	"ANDNPS",//40
+	"ANDNPS",
 	"VANDNPS",
 	"ARPL",
 	"BLENDPD",
 	"VBLENDPD",
-	"BEXTR",//45
+	"BEXTR",
 	"BLENDPS",
 	"VBLENDPS",
 	"BLENDVPD",
 	"VBLENDVPD",
-	"BLENDVPS",//50
+	"BLENDVPS",
 	"VBLENDVPS",
 	"BLSI",
 	"BLSMSK",
 	"BLSR",
-	"BNDCL",//55
+	"BNDCL",
 	"BNDCU",
 	"BNDCN",
 	"BNDLDX",
 	"BNDMK",
-	"BNDMOV",//60
+	"BNDMOV",
 	"BNDSTX",
 	"BOUND",
 	"BSF",
 	"BSR",
-	"BSWAP",//65
+	"BSWAP",
 	"BT",
 	"BTC",
 	"BTR",
 	"BTS",
-	"BZHI",//70
+	"BZHI",
 	"CALL",
 	"CBW",
 	"CWDE",
 	"CDQE",
-	"CLAC",//75
+	"CLAC",
 	"CLC",
 	"CLD",
 	"CLFLUSH",
 	"CLFLUSHOPT",
-	"CLI",//80
+	"CLI",
 	"CLTS",
 	"CLWB",
 	"CMC",
 	"CMOVA",
-	"CMOVAE",//85
+	"CMOVAE",
 	"CMOVB",
 	"CMOVBE",
 	"CMOVC",
 	"CMOVE",
-	"CMOVG",//90
+	"CMOVG",
 	"CMOVGE",
 	"CMOVL",
 	"CMOVLE",
 	"CMOVNA",
-	"CMOVNAE",//95
+	"CMOVNAE",
 	"CMOVNB",
 	"CMOVNBE",
 	"CMOVNC",
 	"CMOVNE",
-	"CMOVNG",//100
+	"CMOVNG",
 	"CMOVNGE",
 	"CMOVNL",
 	"CMOVNLE",
 	"CMOVNO",
-	"CMOVNP",//105
+	"CMOVNP",
 	"CMOVNS",
 	"CMOVNZ",
 	"CMOVO",
 	"CMOVP",
-	"CMOVPE",//110
+	"CMOVPE",
 	"CMOVPO",
 	"CMOVS",
 	"CMOVZ",
 	"CMP",
-	"CMPPD",//115
+	"CMPPD",
 	"VCMPPD",
 	"CMPPS",
 	"VCMPPS",
 	"CMPS",
-	"CMPSB",//120
+	"CMPSB",
 	"CMPSW",
 	"CMPSD",
 	"CMPSQ",
-	"CMPSD",
-	"",//125
-	"",
-	"",
-	"",
-	"",
-	"",//130
-	"",
-	"",
-	"",
-	"",
-	"",//135
-	"",
-	"",
-	"",
-	"",
-	"",//140
-	"",
-	"",
-	"",
-	"",
-	"",//145
-	"",
-	"",
-	"",
-	"",
-	"",//150
-	"",
-	"",
-	"",
-	"",
-	"",//155
-	"",
-	"",
-	"",
-	"",
-	"",//160
-	"",
-	"",
-	"",
-	"",
-	"",//165
-	"",
-	"",
-	"",
-	"",
-	"",//170
-	"",
-	"",
-	"",
-	"",
-	"",//175
-	"",
-	"",
-	"",
-	"",
-	"",//180
-	"",
-	"",
-	"",
-	"",
-	"",//185
-	"",
-	"",
-	"",
-	"",
-	"",//190
-	"",
-	"",
-	"",
-	"",
-	"",//195
-	"",
-	"",
-	"",
-	"",
-	"",//200
+	"CMPSD"
 };
+

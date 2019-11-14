@@ -130,6 +130,7 @@
     <ClInclude Include="ModRM.h" />
     <ClInclude Include="Prefixes.h" />
     <ClInclude Include="Registers.h" />
+    <ClInclude Include="testing\catch.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="decoder.cpp" />
@@ -142,7 +143,7 @@
     <ClCompile Include="ModRM.cpp" />
     <ClCompile Include="Prefixes.cpp" />
     <ClCompile Include="Registers.cpp" />
-    <ClCompile Include="Entrypoint.cpp" />
+    <ClCompile Include="testing\Entrypoint.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

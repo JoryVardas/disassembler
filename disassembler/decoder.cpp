@@ -34,7 +34,7 @@ uint8_t decodeBasePrefix(byte b) {
 };
 
 bool isRexPrefix(byte b) {
-	return (b & 0x40) > 0;
+	return (b & 0xF0) == 0x40;
 };
 bool isVex2Prefix(byte b) {
 	return b == 0xC5;
@@ -106,6 +106,11 @@ std::pair<uint64_t, ExtendedPrefixData> decodePrefixContext(ByteStream& stream) 
 		};
 	} while (decodedBasePrefix != PREFIX_NO_PREFIX);
 
+	//if we didn't have any prefixes, set the no prefix flag
+	if ((context & (~(PREFIX_CONTEXT_PREFIX_66 | PREFIX_CONTEXT_PREFIX_67))) == 0) {
+		context |= PREFIX_CONTEXT_NO_PREFIX;
+	};
+
 	//next we check if there is a REX prefix, and if so decode it and add it to the context.
 	if (isRexPrefix(stream.peekByte())) {
 		if (extendedPrefixData.dataType != ExtendedPrefixData::EXTENDED_PREFIX_INVALID) {
@@ -164,15 +169,16 @@ std::pair<uint64_t, ExtendedPrefixData> decodePrefixContext(ByteStream& stream) 
 			extendedPrefixData.vex.pp = (vex & 0x03);
 			switch (extendedPrefixData.vex.pp) {
 			case 0:
+				context |= PREFIX_CONTEXT_VEX_EVEX_PREFIX_NONE;
 				break;
 			case 1:
-				context |= PREFIX_CONTEXT_PREFIX_66;
+				context |= PREFIX_CONTEXT_VEX_EVEX_PREFIX_66;
 				break;
 			case 2:
-				context |= PREFIX_CONTEXT_PREFIX_F3;
+				context |= PREFIX_CONTEXT_VEX_EVEX_PREFIX_F3;
 				break;
 			case 3:
-				context |= PREFIX_CONTEXT_PREFIX_F2;
+				context |= PREFIX_CONTEXT_VEX_EVEX_PREFIX_F2;
 				break;
 			};
 		};
@@ -233,15 +239,16 @@ std::pair<uint64_t, ExtendedPrefixData> decodePrefixContext(ByteStream& stream) 
 			extendedPrefixData.vex.pp = (vex2 & 0x03);
 			switch (extendedPrefixData.vex.pp) {
 			case 0:
+				context |= PREFIX_CONTEXT_VEX_EVEX_PREFIX_NONE;
 				break;
 			case 1:
-				context |= PREFIX_CONTEXT_PREFIX_66;
+				context |= PREFIX_CONTEXT_VEX_EVEX_PREFIX_66;
 				break;
 			case 2:
-				context |= PREFIX_CONTEXT_PREFIX_F3;
+				context |= PREFIX_CONTEXT_VEX_EVEX_PREFIX_F3;
 				break;
 			case 3:
-				context |= PREFIX_CONTEXT_PREFIX_F2;
+				context |= PREFIX_CONTEXT_VEX_EVEX_PREFIX_F2;
 				break;
 			};
 		};
@@ -249,7 +256,7 @@ std::pair<uint64_t, ExtendedPrefixData> decodePrefixContext(ByteStream& stream) 
 	};
 
 	//next we check if there is a EVEX prefix
-	if (isVex2Prefix(stream.peekByte())) {
+	if (isEvexPrefix(stream.peekByte())) {
 		if (extendedPrefixData.dataType != ExtendedPrefixData::EXTENDED_PREFIX_INVALID) {
 			std::cerr << "REX/VEX/EVEX already defined for current instruction, skipping duplicate EVEX prefix. Location: " << stream.currentLocation() << std::endl;
 
@@ -298,14 +305,17 @@ std::pair<uint64_t, ExtendedPrefixData> decodePrefixContext(ByteStream& stream) 
 			extendedPrefixData.evex.vvvv = ((evex2 & 0x78) >> 3);
 			extendedPrefixData.evex.pp = (evex2 & 0x03);
 			switch (extendedPrefixData.evex.pp) {
+			case 0:
+				context |= PREFIX_CONTEXT_VEX_EVEX_PREFIX_NONE;
+				break;
 			case 1:
-				context |= PREFIX_CONTEXT_PREFIX_66;
+				context |= PREFIX_CONTEXT_VEX_EVEX_PREFIX_66;
 				break;
 			case 2:
-				context |= PREFIX_CONTEXT_PREFIX_F3;
+				context |= PREFIX_CONTEXT_VEX_EVEX_PREFIX_F3;
 				break;
 			case 3:
-				context |= PREFIX_CONTEXT_PREFIX_F2;
+				context |= PREFIX_CONTEXT_VEX_EVEX_PREFIX_F2;
 				break;
 			default:
 				break;
@@ -480,7 +490,7 @@ void getRawModRMData(InstructionRawOperandData& rawOperandData, ByteStream& stre
 		rawOperandData.sib = SIB(stream.consumeByte());
 
 		//do we need a displacement?
-		if (rawOperandData.sib->base == 5 && rawOperandData.modrm->mod == 4) {
+		if (rawOperandData.sib->base == 5 && rawOperandData.modrm->mod == 0) {
 			rawOperandData.displacement = (uint64_t)stream.consumeDWord();
 		};
 	};
@@ -681,6 +691,17 @@ operandType_t getClosestRegisterOperandType(operandType_t operandType, prefixCon
 			if (operandTypeHasFlags(operandType, OPERAND_TYPE_ZMM)) {
 				return OPERAND_TYPE_ZMM;
 			}
+		}
+		else {
+			if (operandTypeHasFlags(operandType, OPERAND_TYPE_ZMM)) {
+				return OPERAND_TYPE_ZMM;
+			}
+			else if (operandTypeHasFlags(operandType, OPERAND_TYPE_YMM)) {
+				return OPERAND_TYPE_YMM;
+			}
+			else if (operandTypeHasFlags(operandType, OPERAND_TYPE_XMM)) {
+				return OPERAND_TYPE_XMM;
+			}
 		};
 	};
 
@@ -710,7 +731,13 @@ register_t getRegisterFromOperandType(operandType_t operandType, ExtendedPrefixD
 		};
 	}
 	else if (operandTypeHasSomeFlags(operandType, OPERAND_TYPE_XMM_YMM_ZMM)) {
-		if (prefixData.dataType == prefixData.EXTENDED_PREFIX_VEX) {
+		if (prefixData.dataType == prefixData.EXTENDED_PREFIX_REX) {
+			//we have a rex prefix which may contain register extension bits.
+			if (prefixData.rex.R == 1) {
+				reg |= 0x08;
+			};
+		}
+		else if (prefixData.dataType == prefixData.EXTENDED_PREFIX_VEX) {
 			//we have a vex prefix which may contain register extension bits.
 			if (prefixData.vex.R == 0) {
 				reg |= 0x08;
@@ -751,13 +778,13 @@ void decodeRegisterOperand(DecodedInstruction::DecodedOperand& decodedOperand, o
 	if (operandTypeHasSomeFlags(operandType, OPERAND_TYPE__K_ | OPERAND_TYPE__K_Z_)) {
 		//if we don't have an evex prefix then we don't have a writemask
 		if (prefixData.dataType == prefixData.EXTENDED_PREFIX_EVEX) {
-			decodedOperand.operandData.reg.kzFieldsUsed = true;
+			//decodedOperand.operandData.reg.kzFieldsUsed = true;
 			decodedOperand.operandData.reg.k_register = prefixData.evex.aaa;
 		};
 	};
 	if (operandTypeHasFlags(operandType, OPERAND_TYPE__K_Z_)) {
 		if (prefixData.dataType == prefixData.EXTENDED_PREFIX_EVEX) {
-			decodedOperand.operandData.reg.kzFieldsUsed = true;
+			//decodedOperand.operandData.reg.kzFieldsUsed = true;
 			decodedOperand.operandData.reg.z_mask_used = prefixData.evex.z;
 		};
 	};
@@ -787,7 +814,13 @@ register_t getMemoryRegisterFromOperandType(operandType_t operandType, ExtendedP
 		};
 	}
 	else if (operandTypeHasSomeFlags(operandType, OPERAND_TYPE_XMM_YMM_ZMM)) {
-		if (prefixData.dataType == prefixData.EXTENDED_PREFIX_VEX) {
+		if (prefixData.dataType == prefixData.EXTENDED_PREFIX_REX) {
+			//we have a rex prefix which may contain register extension bits.
+			if (prefixData.rex.B == 1) {
+				reg |= 0x08;
+			};
+		}
+		else if (prefixData.dataType == prefixData.EXTENDED_PREFIX_VEX) {
 			//we have a vex prefix which may contain register extension bits.
 			if (prefixData.vex.B == 0) {
 				reg |= 0x08;
@@ -818,6 +851,64 @@ register_t getMemoryRegisterFromOperandType(operandType_t operandType, ExtendedP
 	std::cerr << "Could not determine the register value." << std::endl;
 	return REGISTER_INVALID_REGISTER;
 };
+operandType_t getClosestMemoryOperandType(operandType_t operandType, prefixContext_t prefixContext, operandSize_t operandSize) {
+	if (operandTypeHasSomeFlags(operandType, OPERAND_TYPE_M16_32_64)) {
+		switch (operandSize) {
+		case OPERAND_SIZE_64:
+			if (operandTypeHasFlags(operandType, OPERAND_TYPE_M64)) {
+				return OPERAND_TYPE_M64;
+			};
+		case OPERAND_SIZE_32:
+			if (operandTypeHasFlags(operandType, OPERAND_TYPE_M32)) {
+				return OPERAND_TYPE_M32;
+			};
+		case OPERAND_SIZE_16:
+			if (operandTypeHasFlags(operandType, OPERAND_TYPE_M16)) {
+				return OPERAND_TYPE_M16;
+			};
+		default:
+			//std::cerr << "getClosestMemoryOperandType passed unknown operand size." << std::endl;
+			//return OPERAND_TYPE_NO_OPERANDS;
+			
+			//while this would normally be an error, there are cases such as ADDSD in which the operandSize != 64 but the memory size does.
+			//so to handle such cases, just forward the memory.
+			return operandType & (OPERAND_TYPE_M16_32_64 | OPERAND_TYPE_M128_256_512);
+		};
+	}
+	else if (operandTypeHasFlags(operandType, OPERAND_TYPE_M8)) {
+		return OPERAND_TYPE_M8;
+	}
+	else if (operandTypeHasSomeFlags(operandType, OPERAND_TYPE_M128_256_512)) {
+		if (prefixContextHasFlag(prefixContext, PREFIX_CONTEXT_VEX_128) || prefixContextHasFlag(prefixContext, PREFIX_CONTEXT_EVEX_128)) {
+			if (operandTypeHasFlags(operandType, OPERAND_TYPE_M128)) {
+				return OPERAND_TYPE_M128;
+			}
+		}
+		else if (prefixContextHasFlag(prefixContext, PREFIX_CONTEXT_VEX_256) || prefixContextHasFlag(prefixContext, PREFIX_CONTEXT_EVEX_256)) {
+			if (operandTypeHasFlags(operandType, OPERAND_TYPE_M256)) {
+				return OPERAND_TYPE_M256;
+			}
+		}
+		else if (prefixContextHasFlag(prefixContext, PREFIX_CONTEXT_EVEX_512)) {
+			if (operandTypeHasFlags(operandType, OPERAND_TYPE_M512)) {
+				return OPERAND_TYPE_M512;
+			}
+		}
+		else {
+			if (operandTypeHasFlags(operandType, OPERAND_TYPE_M512)) {
+				return OPERAND_TYPE_M512;
+			}
+			else if (operandTypeHasFlags(operandType, OPERAND_TYPE_M256)) {
+				return OPERAND_TYPE_M256;
+			}
+			else if (operandTypeHasFlags(operandType, OPERAND_TYPE_M128)) {
+				return OPERAND_TYPE_M128;
+			}
+		};
+	};
+
+	return OPERAND_TYPE_NO_OPERANDS;
+};
 void decodeRegisterMemoryOperand(DecodedInstruction::DecodedOperand& decodedOperand, operandType_t operandType, prefixContext_t prefixContext, ExtendedPrefixData& prefixData, InstructionRawOperandData& rawOperandData, operandSize_t operandSize, addressSize_t addressSize) {
 	//first we need to decide if we are decoding a register or a memory address
 	//  we can do this by checking the modrm.mod field.
@@ -831,13 +922,13 @@ void decodeRegisterMemoryOperand(DecodedInstruction::DecodedOperand& decodedOper
 		if (operandTypeHasSomeFlags(operandType, OPERAND_TYPE__K_ | OPERAND_TYPE__K_Z_)) {
 			//if we don't have an evex prefix then we don't have a writemask
 			if (prefixData.dataType == prefixData.EXTENDED_PREFIX_EVEX) {
-				decodedOperand.operandData.reg.kzFieldsUsed = true;
+				//decodedOperand.operandData.reg.kzFieldsUsed = true;
 				decodedOperand.operandData.reg.k_register = prefixData.evex.aaa;
 			};
 		};
 		if (operandTypeHasFlags(operandType, OPERAND_TYPE__K_Z_)) {
 			if (prefixData.dataType == prefixData.EXTENDED_PREFIX_EVEX) {
-				decodedOperand.operandData.reg.kzFieldsUsed = true;
+				//decodedOperand.operandData.reg.kzFieldsUsed = true;
 				decodedOperand.operandData.reg.z_mask_used = prefixData.evex.z;
 			};
 		};
@@ -881,8 +972,8 @@ void decodeRegisterMemoryOperand(DecodedInstruction::DecodedOperand& decodedOper
 
 					//get the scaled register
 					if (scaledReg != 4) {
-						if (addressSize == ADDRESS_SIZE_32) decodedOperand.operandData.memory.scaledReg = modrmSibScaledGroups[baseReg][modrmSibScaledGroups_R32];
-						else if (addressSize == ADDRESS_SIZE_64) decodedOperand.operandData.memory.scaledReg = modrmSibScaledGroups[baseReg][modrmSibScaledGroups_R64];
+						if (addressSize == ADDRESS_SIZE_32) decodedOperand.operandData.memory.scaledReg = modrmSibScaledGroups[scaledReg][modrmSibScaledGroups_R32];
+						else if (addressSize == ADDRESS_SIZE_64) decodedOperand.operandData.memory.scaledReg = modrmSibScaledGroups[scaledReg][modrmSibScaledGroups_R64];
 					};
 
 					switch (rawOperandData.sib->scale) {
@@ -974,6 +1065,34 @@ void decodeRegisterMemoryOperand(DecodedInstruction::DecodedOperand& decodedOper
 			};
 		};
 
+
+		//now we have to get the memory size
+		switch (getClosestMemoryOperandType(operandType, prefixContext, operandSize)) {
+		case OPERAND_TYPE_M8:
+			decodedOperand.operandData.memory.size = MEMORY_OPERAND_SIZE_BYTE;
+			break;
+		case OPERAND_TYPE_M16:
+			decodedOperand.operandData.memory.size = MEMORY_OPERAND_SIZE_WORD;
+			break;
+		case OPERAND_TYPE_M32:
+			decodedOperand.operandData.memory.size = MEMORY_OPERAND_SIZE_DWORD;
+			break;
+		case OPERAND_TYPE_M64:
+			decodedOperand.operandData.memory.size = MEMORY_OPERAND_SIZE_QWORD;
+			break;
+		case OPERAND_TYPE_M128:
+			decodedOperand.operandData.memory.size = MEMORY_OPERAND_SIZE_XMMWORD;
+			break;
+		case OPERAND_TYPE_M256:
+			decodedOperand.operandData.memory.size = MEMORY_OPERAND_SIZE_YMMWORD;
+			break;
+		case OPERAND_TYPE_M512:
+			decodedOperand.operandData.memory.size = MEMORY_OPERAND_SIZE_ZMMWORD;
+			break;
+		default:
+			decodedOperand.operandData.memory.size = MEMORY_OPERAND_SIZE_UNKNOWN;
+			break;
+		}
 	};
 };
 
@@ -986,10 +1105,10 @@ void decodeVectorOperand(DecodedInstruction::DecodedOperand& decodedOperand, ope
 
 	uint8_t reg = 0;
 	if (prefixData.dataType == prefixData.EXTENDED_PREFIX_VEX) {
-		reg = ~prefixData.vex.vvvv;
+		reg = (~prefixData.vex.vvvv) & 0x0F;
 	}
 	else if (prefixData.dataType == prefixData.EXTENDED_PREFIX_EVEX) {
-		reg = ~prefixData.evex.vvvv;
+		reg = (~prefixData.evex.vvvv) & 0x0F;
 		if (prefixData.evex.V1 == 0) {
 			reg |= 0x10;
 		};
@@ -1008,17 +1127,18 @@ void decodeVectorOperand(DecodedInstruction::DecodedOperand& decodedOperand, ope
 	if (operandTypeHasSomeFlags(operandType, OPERAND_TYPE__K_ | OPERAND_TYPE__K_Z_)) {
 		//if we don't have an evex prefix then we don't have a writemask
 		if (prefixData.dataType == prefixData.EXTENDED_PREFIX_EVEX) {
-			decodedOperand.operandData.reg.kzFieldsUsed = true;
+			//decodedOperand.operandData.reg.kzFieldsUsed = true;
 			decodedOperand.operandData.reg.k_register = prefixData.evex.aaa;
 		};
 	};
 	if (operandTypeHasFlags(operandType, OPERAND_TYPE__K_Z_)) {
 		if (prefixData.dataType == prefixData.EXTENDED_PREFIX_EVEX) {
-			decodedOperand.operandData.reg.kzFieldsUsed = true;
+			//decodedOperand.operandData.reg.kzFieldsUsed = true;
 			decodedOperand.operandData.reg.z_mask_used = prefixData.evex.z;
 		};
 	};
 };
+
 
 void decodeInstructionOperands(DecodedInstruction& decodedInstruction, instructionOperandEncoding_t encoding, InstructionOperand operands, prefixContext_t prefixContext, ExtendedPrefixData& prefixData, InstructionRawOperandData& rawOperandData, addressSize_t addressSize, operandSize_t operandSize, ByteStream& stream) {
 	switch (encoding) {
@@ -1159,10 +1279,10 @@ DecodedInstruction Decoder::decodeNext(ByteStream& stream) {
 	instructionId_t matchedInstruction = findInstruction(opcode, prefixContext, potentialModrm, stream);
 
 	//if the instruction we matched against required prefixes 66 and/or 67, remove them from the context.
-	if (INSTRUCTION_ENVIRONMENT_HAS_FLAGS(instructionList[matchedInstruction].instructionEnvironment, INSTRUCTION_ENVIRONMENT_REQUIRES_PREFIX_66)) {
+	if(prefixContextHasFlag(instructionList[matchedInstruction].prefixContext, PREFIX_CONTEXT_PREFIX_66)){
 		prefixContext = (prefixContext & (~PREFIX_CONTEXT_PREFIX_66));
 	};
-	if (INSTRUCTION_ENVIRONMENT_HAS_FLAGS(instructionList[matchedInstruction].instructionEnvironment, INSTRUCTION_ENVIRONMENT_REQUIRES_PREFIX_67)) {
+	if (prefixContextHasFlag(instructionList[matchedInstruction].prefixContext, PREFIX_CONTEXT_PREFIX_67)) {
 		prefixContext = (prefixContext & (~PREFIX_CONTEXT_PREFIX_67));
 	};
 
@@ -1185,9 +1305,33 @@ void instructionOperandToString(DecodedInstruction::DecodedOperand& operand, std
 	case DECODED_OPERAND_TYPE_NO_OPERAND:
 		break;
 	case DECODED_OPERAND_TYPE_IMMEDIATE:
-		stream << "0x" << std::hex << operand.operandData.immediate;
+		stream << "0x" << std::uppercase << std::hex << operand.operandData.immediate;
 		break;
 	case DECODED_OPERAND_TYPE_MEM:
+		switch (operand.operandData.memory.size) {
+		case MEMORY_OPERAND_SIZE_BYTE:
+			stream << "BYTE PTR ";
+			break;
+		case MEMORY_OPERAND_SIZE_WORD:
+			stream << "WORD PTR ";
+			break;
+		case MEMORY_OPERAND_SIZE_DWORD:
+			stream << "DWORD PTR ";
+			break;
+		case MEMORY_OPERAND_SIZE_QWORD:
+			stream << "QWORD PTR ";
+			break;
+		case MEMORY_OPERAND_SIZE_XMMWORD:
+			stream << "XMMWORD PTR ";
+			break;
+		case MEMORY_OPERAND_SIZE_YMMWORD:
+			stream << "YMMWORD PTR ";
+			break;
+		case MEMORY_OPERAND_SIZE_ZMMWORD:
+			stream << "ZMMWORD PTR ";
+			break;
+		};
+
 		if (operand.operandData.memory.segment != SEGMENT_REGISTER_NO_REGISTER) {
 			stream << segmentRegisterToString[operand.operandData.memory.segment] << " : ";
 		}
@@ -1217,6 +1361,12 @@ void instructionOperandToString(DecodedInstruction::DecodedOperand& operand, std
 	case DECODED_OPERAND_TYPE_REGISTER:
 		if (operand.operandData.reg.reg != SEGMENT_REGISTER_NO_REGISTER) {
 			stream << registerToString[operand.operandData.reg.reg];
+			if (operand.operandData.reg.k_register != 0) {
+				stream << "{k" << (int)operand.operandData.reg.k_register << "}";
+			};
+			if (operand.operandData.reg.z_mask_used != 0) {
+				stream << "{z}";
+			};
 		};
 		break;
 	}
