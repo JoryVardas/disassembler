@@ -1,0 +1,2 @@
+#define Disassembler_VERSION_MAJOR @Disassembler_VERSION_MAJOR@
+#define Disassembler_VERSION_MINOR @Disassembler_VERSION_MINOR@

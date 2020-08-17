@@ -1,0 +1,1 @@
+target_sources(Disassembler-app PRIVATE app.cpp)
