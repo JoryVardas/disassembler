@@ -10,10 +10,28 @@ endif()
 # Make sure Windows exports all the symbols (exluding data symbols)
 set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 
+# Enable c++ 17
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
+
+# Build any libraries we may need
+
+
+# Build our project
+
+
 # Settings for the library
 add_library(Disassembler SHARED "")
 
 configure_file(include/config.h.in include/config.h)
+
+target_compile_options(Disassembler PRIVATE -Wall 
+        $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:
+          -Werror>
+        $<$<CXX_COMPILER_ID:MSVC>:
+          /WX>)
 
 target_include_directories(Disassembler PUBLIC "${PROJECT_BINARY_DIR}/include")
 target_include_directories(Disassembler PUBLIC include)
@@ -24,5 +42,11 @@ add_subdirectory(src)
 # Settings for the app
 add_executable(Disassembler-app "")
 target_link_libraries(Disassembler-app PUBLIC Disassembler)
+
+target_compile_options(Disassembler-app PRIVATE -Wall 
+        $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:
+          -Werror>
+        $<$<CXX_COMPILER_ID:MSVC>:
+          /WX>)
 
 add_subdirectory(app)
