@@ -3,9 +3,8 @@
 #include <sstream>
 
 X86Instruction::X86Instruction() = default;
-X86Instruction::X86Instruction(const std::vector<X86InstructionPrefix>& prefixList){
-        _prefixList = prefixList;
-};
+X86Instruction::X86Instruction(const std::string& name, const std::vector<X86InstructionPrefix>& prefixList) :
+        Instruction(name), _prefixList(prefixList) {}
 X86Instruction::X86Instruction(X86Instruction&) = default;
 X86Instruction::X86Instruction(X86Instruction&&) = default;
 X86Instruction::~X86Instruction() = default;
@@ -18,7 +17,8 @@ std::string X86Instruction::toString() const {
                 returnString << X86InstructionPrefixToString(prefix) << ", ";
         }
 
-        returnString << "] INSTRUCTION ";
+        returnString << "] ";
+        returnString << _name;
 
         return returnString.str();
 }

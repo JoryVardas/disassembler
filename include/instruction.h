@@ -12,6 +12,9 @@ public:
         Instruction();
         Instruction(Instruction&);
         Instruction(Instruction&&);
+
+        Instruction(const std::string& name);
+
         virtual ~Instruction();
 
         virtual std::string toString() const = 0;

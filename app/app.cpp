@@ -10,7 +10,7 @@
 
 int main(/*int argc, char* argv[]*/){
 
-        std::vector<std::byte> test = {std::byte(X86InstructionPrefix::LOCK), std::byte(0)};
+        std::vector<std::byte> test = {std::byte(X86InstructionPrefix::LOCK), std::byte(0x01)};
 
         BidirectionalIterator<std::byte> start ( test.begin()._Ptr, 2 );
 

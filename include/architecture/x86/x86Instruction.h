@@ -4,10 +4,12 @@
 #include <instruction.h>
 #include "x86InstructionPrefix.h"
 
+typedef uint32_t X86InstructionOpcode;
+
 class X86Instruction : public Instruction {
 public:
         X86Instruction();
-        X86Instruction(const std::vector<X86InstructionPrefix>& prefixList);
+        X86Instruction(const std::string& name, const std::vector<X86InstructionPrefix>& prefixList);
         X86Instruction(X86Instruction&);
         X86Instruction(X86Instruction&&);
         ~X86Instruction();
@@ -18,7 +20,7 @@ public:
         void operator=(X86Instruction&&) = delete;
 protected:
 private:
-std::vector<X86InstructionPrefix> _prefixList;
+        std::vector<X86InstructionPrefix> _prefixList;
 };
 
 #endif
