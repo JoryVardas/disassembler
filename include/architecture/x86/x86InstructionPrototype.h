@@ -5,12 +5,25 @@
 #include <optional>
 #include <functional>
 #include <string>
+#include <memory>
 
 #include "x86InstructionPrefix.h"
 #include "x86Instruction.h"
 
 #include <common.h>
 #include <bidirectionalIterator.h>
+
+#include "x86InstructionParameterPrototype.h"
+
+enum class X86InstructionParameterLocation {
+    CONSTANT,
+    IMMEDIATE,
+    MODRM_REG,
+    MODRM_RM
+};
+
+using InstructionParameterGroup = std::vector<X86InstructionParameterPrototype>;
+using InstructionParameterPrototype = std::pair<X86InstructionParameterLocation, InstructionParameterGroup>;
 
 struct X86InstructionPrototype{
 public:
@@ -21,7 +34,8 @@ public:
     X86InstructionPrototype(X86InstructionPrototype&&);
     X86InstructionPrototype(const std::string& name, const X86InstructionOpcode opcode);
     X86InstructionPrototype(const std::string& name, const std::optional<std::vector<X86InstructionPrefix>>& requiredPrefixList, const X86InstructionOpcode opcode, const std::optional<customComparisonFunction>& customComparison);
-    X86InstructionPrototype(const std::string& name, const std::optional<std::vector<X86InstructionPrefix>>& requiredPrefixList, const X86InstructionOpcode opcode, const uint8_t modrmOpcodeExtension, const std::optional<customComparisonFunction>& customComparisonFunction);
+    X86InstructionPrototype(const std::string& name, const std::optional<std::vector<X86InstructionPrefix>>& requiredPrefixList, const X86InstructionOpcode opcode, const std::vector<InstructionParameterPrototype>& possibleInstructionParameters, const std::optional<customComparisonFunction>& customComparison);
+    X86InstructionPrototype(const std::string& name, const std::optional<std::vector<X86InstructionPrefix>>& requiredPrefixList, const X86InstructionOpcode opcode, const uint8_t modrmOpcodeExtension, const std::vector<InstructionParameterPrototype>& possibleInstructionParameters, const std::optional<customComparisonFunction>& customComparisonFunction);
     ~X86InstructionPrototype();
 
 
@@ -29,8 +43,8 @@ public:
     bool prefixListMatches(const std::vector<X86InstructionPrefix>& prefixList) const;
     bool opcodeMatches(const X86InstructionOpcode opcode, BidirectionalIterator<std::byte> bytesToDecode) const;
 
-
     const std::string& getInstructionName() const;
+    const std::vector<InstructionParameterPrototype> getPossibleInstructionParameters() const;
 
     X86InstructionPrototype& operator=(X86InstructionPrototype&);
     X86InstructionPrototype& operator=(X86InstructionPrototype&&);
@@ -44,6 +58,7 @@ private:
     X86InstructionOpcode _instructionOpcode;
     std::optional<uint8_t> _modrmOpcodeExtensionValue;
     PADDING(2);
+    std::vector<InstructionParameterPrototype> _instructionParameterPossibilities;
     std::optional<customComparisonFunction> _customComparison;
 };
 

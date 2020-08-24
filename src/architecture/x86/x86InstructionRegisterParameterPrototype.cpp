@@ -1,0 +1,9 @@
+#include <architecture\x86\x86InstructionRegisterParameterPrototype.h>
+
+X86InstructionRegisterParameterPrototype::X86InstructionRegisterParameterPrototype() = default;
+X86InstructionRegisterParameterPrototype::X86InstructionRegisterParameterPrototype(const X86InstructionRegisterParameterPrototype&) = default;
+X86InstructionRegisterParameterPrototype::X86InstructionRegisterParameterPrototype(X86InstructionRegisterParameterPrototype&&) = default;
+X86InstructionRegisterParameterPrototype::~X86InstructionRegisterParameterPrototype() = default;
+
+X86InstructionRegisterParameterPrototype& X86InstructionRegisterParameterPrototype::operator=(const X86InstructionRegisterParameterPrototype&) = default;
+X86InstructionRegisterParameterPrototype& X86InstructionRegisterParameterPrototype::operator=(X86InstructionRegisterParameterPrototype&&) = default;

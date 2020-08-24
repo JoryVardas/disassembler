@@ -13,7 +13,7 @@ public:
         Instruction(Instruction&);
         Instruction(Instruction&&);
 
-        Instruction(const std::string& name);
+        Instruction(const std::string& name, const std::vector<std::shared_ptr<InstructionParameter>>& parameters);
 
         virtual ~Instruction();
 
@@ -22,8 +22,8 @@ public:
         void operator=(Instruction&) = delete;
         void operator=(Instruction&&) = delete;
 protected:
-        std::vector<std::shared_ptr<InstructionParameter>> _parameters;
         std::string _name;
+        std::vector<std::shared_ptr<InstructionParameter>> _parameters;
 };
 
 #endif
