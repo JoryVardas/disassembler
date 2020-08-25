@@ -14,6 +14,7 @@
 #include <bidirectionalIterator.h>
 
 #include "x86InstructionParameterPrototype.h"
+#include "x86Environment.h"
 
 enum class X86InstructionParameterLocation {
     CONSTANT,
@@ -32,14 +33,14 @@ public:
     X86InstructionPrototype();
     X86InstructionPrototype(const X86InstructionPrototype&);
     X86InstructionPrototype(X86InstructionPrototype&&);
-    X86InstructionPrototype(const std::string& name, const X86InstructionOpcode opcode);
-    X86InstructionPrototype(const std::string& name, const std::optional<std::vector<X86InstructionPrefix>>& requiredPrefixList, const X86InstructionOpcode opcode, const std::optional<customComparisonFunction>& customComparison);
-    X86InstructionPrototype(const std::string& name, const std::optional<std::vector<X86InstructionPrefix>>& requiredPrefixList, const X86InstructionOpcode opcode, const std::vector<InstructionParameterPrototype>& possibleInstructionParameters, const std::optional<customComparisonFunction>& customComparison);
-    X86InstructionPrototype(const std::string& name, const std::optional<std::vector<X86InstructionPrefix>>& requiredPrefixList, const X86InstructionOpcode opcode, const uint8_t modrmOpcodeExtension, const std::vector<InstructionParameterPrototype>& possibleInstructionParameters, const std::optional<customComparisonFunction>& customComparisonFunction);
+    X86InstructionPrototype(const std::string& name, const X86Environment::X86InstructionMode validMode, const X86InstructionOpcode opcode);
+    X86InstructionPrototype(const std::string& name, const X86Environment::X86InstructionMode validMode, const std::optional<std::vector<X86InstructionPrefix>>& requiredPrefixList, const X86InstructionOpcode opcode, const std::optional<customComparisonFunction>& customComparison);
+    X86InstructionPrototype(const std::string& name, const X86Environment::X86InstructionMode validMode, const std::optional<std::vector<X86InstructionPrefix>>& requiredPrefixList, const X86InstructionOpcode opcode, const std::vector<InstructionParameterPrototype>& possibleInstructionParameters, const std::optional<customComparisonFunction>& customComparison);
+    X86InstructionPrototype(const std::string& name, const X86Environment::X86InstructionMode validMode, const std::optional<std::vector<X86InstructionPrefix>>& requiredPrefixList, const X86InstructionOpcode opcode, const uint8_t modrmOpcodeExtension, const std::vector<InstructionParameterPrototype>& possibleInstructionParameters, const std::optional<customComparisonFunction>& customComparisonFunction);
     ~X86InstructionPrototype();
 
 
-    bool isMatch(const std::vector<X86InstructionPrefix>& prefixList, const X86InstructionOpcode opcode, BidirectionalIterator<std::byte>& bytesToDecode) const;
+    bool isMatch(const X86Environment::X86InstructionMode currentInstructionMode, const std::vector<X86InstructionPrefix>& prefixList, const X86InstructionOpcode opcode, BidirectionalIterator<std::byte>& bytesToDecode) const;
     bool prefixListMatches(const std::vector<X86InstructionPrefix>& prefixList) const;
     bool opcodeMatches(const X86InstructionOpcode opcode, BidirectionalIterator<std::byte> bytesToDecode) const;
 
@@ -52,6 +53,8 @@ public:
 private:
 
     std::string _instructionName;
+    X86Environment::X86InstructionMode _validMode;
+    PADDING(4);
     // if optional has no value, then it is required that the instruction no have any prefixes.
     // otherwise the list contains only the required prefixes.
     std::optional<std::vector<X86InstructionPrefix>> _requiredPrefixes;

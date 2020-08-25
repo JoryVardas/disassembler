@@ -14,8 +14,9 @@ public:
                 X64
         };
         enum class X86InstructionMode {
-                X32,
-                X64
+                LEGACY,
+                X64,
+                BOTH
         };
 
         X86AddressMode _defaultAdressMode;

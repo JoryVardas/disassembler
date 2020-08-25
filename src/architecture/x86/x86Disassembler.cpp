@@ -95,8 +95,9 @@ X86InstructionOpcode X86Disassembler::retrieveInstructionOpcode(BidirectionalIte
 }
 
 X86InstructionPrototype X86Disassembler::decodeInstructionPrototype(const std::vector<X86InstructionPrefix>& prefixList, const X86InstructionOpcode opcode, BidirectionalIterator<std::byte>& bytesToDecode) const{
-        auto found = std::find_if(X86InstructionPrototypeList.begin(), X86InstructionPrototypeList.end(), [&prefixList, &opcode, &bytesToDecode](const X86InstructionPrototype& currentInstructionPrototype){
-                return currentInstructionPrototype.isMatch(prefixList, opcode, bytesToDecode);
+        const X86Environment::X86InstructionMode currentInstructionMode = _disassemblerEnvirionment._defaultInstructionMode;
+        auto found = std::find_if(X86InstructionPrototypeList.begin(), X86InstructionPrototypeList.end(), [&currentInstructionMode, &prefixList, &opcode, &bytesToDecode](const X86InstructionPrototype& currentInstructionPrototype){
+                return currentInstructionPrototype.isMatch(currentInstructionMode, prefixList, opcode, bytesToDecode);
         });
         if (found != X86InstructionPrototypeList.end()){
                 return *found;
