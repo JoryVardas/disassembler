@@ -220,6 +220,9 @@ std::vector<std::shared_ptr<InstructionParameter>> X86Disassembler::decodeInstru
                 if(parameterLocation == X86InstructionParameterLocation::MODRM_RM){
                         erase_if(prototypeList, removeRegisterOrMemoryCandidates);
                 }
+                else if(parameterLocation == X86InstructionParameterLocation::IMPLIED){
+                        erase_if(prototypeList, removeRegisterSizes);
+                }
 
                 if(std::size(prototypeList) <= 1) continue;
                 

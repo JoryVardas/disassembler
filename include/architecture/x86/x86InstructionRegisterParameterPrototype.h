@@ -32,4 +32,21 @@ public:
     }
 };
 
+struct X86InstructionSingleRegisterParameterPrototypeSpecification : public X86InstructionRegisterParameterPrototype {
+public:
+    X86InstructionSingleRegisterParameterPrototypeSpecification();
+    X86InstructionSingleRegisterParameterPrototypeSpecification(const X86InstructionSingleRegisterParameterPrototypeSpecification&);
+    X86InstructionSingleRegisterParameterPrototypeSpecification(X86InstructionSingleRegisterParameterPrototypeSpecification&&);
+    X86InstructionSingleRegisterParameterPrototypeSpecification(const std::string& registerName);
+    ~X86InstructionSingleRegisterParameterPrototypeSpecification();
+
+    RegisterSize size() const override;
+    X86InstructionRegisterParameter specify(const X86InstructionRegisterParameterGroup& registerGroup) const override;
+    
+    X86InstructionSingleRegisterParameterPrototypeSpecification& operator=(const X86InstructionSingleRegisterParameterPrototypeSpecification&);
+    X86InstructionSingleRegisterParameterPrototypeSpecification& operator=(X86InstructionSingleRegisterParameterPrototypeSpecification&&);
+private:
+    std::string _registerName;
+};
+
 #endif

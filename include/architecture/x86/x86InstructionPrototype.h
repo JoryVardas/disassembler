@@ -20,7 +20,8 @@ enum class X86InstructionParameterLocation {
     CONSTANT,
     IMMEDIATE,
     MODRM_REG,
-    MODRM_RM
+    MODRM_RM,
+    IMPLIED
 };
 
 using InstructionParameterGroup = std::vector<X86InstructionParameterPrototype>;
