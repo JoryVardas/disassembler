@@ -5,19 +5,19 @@
 const std::string X86InstructionAddressParameterSizeToString(const X86InstructionAddressParameterSize addressParameterSize) {
     switch(addressParameterSize) {
         case X86InstructionAddressParameterSize::BYTE_PTR:
-            return "BYTE PTR";
+            return "BYTE";
         case X86InstructionAddressParameterSize::WORD_PTR:
-            return "WORD PTR";
+            return "WORD";
         case X86InstructionAddressParameterSize::DWORD_PTR:
-            return "DWORD PTR";
+            return "DWORD";
         case X86InstructionAddressParameterSize::QWORD_PTR:
-            return "QWORD PTR";
+            return "QWORD";
         case X86InstructionAddressParameterSize::XMM_PTR:
-            return "XMM PTR";
+            return "XMM";
         case X86InstructionAddressParameterSize::YMM_PTR:
-            return "YMM PTR";
+            return "YMM";
         case X86InstructionAddressParameterSize::ZMM_PTR:
-            return "ZMM PTR";
+            return "ZMM";
     }
 
     return "UNKNOWN PTR";
