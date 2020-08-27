@@ -1,0 +1,1 @@
+target_sources(Disassembler-test PRIVATE x86Tests.cpp)
