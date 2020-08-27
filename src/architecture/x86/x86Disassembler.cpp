@@ -258,6 +258,9 @@ std::vector<std::shared_ptr<InstructionParameter>> X86Disassembler::decodeInstru
                         else if(parameterLocation == X86InstructionParameterLocation::MODRM_RM){
                                 specifiedParameterList.emplace_back(std::make_shared<X86InstructionRegisterParameter>((*registerPrototype)->specify(X86InstructionRegisterParameterGroups.at(static_cast<std::size_t>(getModrmRM(modrm))))));
                         }
+                        else if(parameterLocation == X86InstructionParameterLocation::IMPLIED){
+                                specifiedParameterList.emplace_back(std::make_shared<X86InstructionRegisterParameter>((*registerPrototype)->specify(X86InstructionRegisterParameterGroups.at(0))));
+                        }
                 }
                 else if(auto addressPrototype = std::get_if<std::shared_ptr<X86InstructionAddressParameterPrototype>>(&prototype)){
                         uint64_t displacementValue = 0;
