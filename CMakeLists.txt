@@ -31,7 +31,7 @@ target_compile_options(Disassembler PRIVATE -Wall
         $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:
           -Werror>
         $<$<CXX_COMPILER_ID:MSVC>:
-          /WX>)
+          /WX /wd5045>)
 
 target_include_directories(Disassembler PUBLIC "${PROJECT_BINARY_DIR}/include")
 target_include_directories(Disassembler PUBLIC include)
@@ -47,6 +47,12 @@ target_compile_options(Disassembler-app PRIVATE -Wall
         $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:
           -Werror>
         $<$<CXX_COMPILER_ID:MSVC>:
-          /WX>)
+          /WX /wd5045>)
 
 add_subdirectory(app)
+
+# Settings for the tests
+add_executable(Disassembler-test "")
+target_link_libraries(Disassembler-test PUBLIC Disassembler)
+
+add_subdirectory(test)
