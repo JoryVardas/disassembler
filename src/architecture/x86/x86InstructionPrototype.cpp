@@ -57,6 +57,10 @@ const std::vector<InstructionParameterPrototype> X86InstructionPrototype::getPos
     return _instructionParameterPossibilities;
 }
 
+const X86Environment::X86InstructionMode X86InstructionPrototype::getValidMode() const{
+    return _validMode;
+}
+
 
 X86InstructionPrototype& X86InstructionPrototype::operator=(X86InstructionPrototype&) = default;
 X86InstructionPrototype& X86InstructionPrototype::operator=(X86InstructionPrototype&&) = default;

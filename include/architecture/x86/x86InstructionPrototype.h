@@ -47,6 +47,7 @@ public:
 
     const std::string& getInstructionName() const;
     const std::vector<InstructionParameterPrototype> getPossibleInstructionParameters() const;
+    const X86Environment::X86InstructionMode getValidMode() const;
 
     X86InstructionPrototype& operator=(X86InstructionPrototype&);
     X86InstructionPrototype& operator=(X86InstructionPrototype&&);
