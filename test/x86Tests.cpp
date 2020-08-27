@@ -105,9 +105,16 @@ void generateTestData(std::string assemblerLocation){
         std::ofstream assemblyFile("test_data.asm", std::ofstream::trunc);
 
         X86Environment targetEnvironment;
-        targetEnvironment._defaultAdressMode = X86Environment::X86AddressMode::X16;
+        targetEnvironment._defaultAdressMode = X86Environment::X86AddressMode::X32;
         targetEnvironment._defaultInstructionMode = X86Environment::X86InstructionMode::LEGACY;
         targetEnvironment._defaultParameterMode = X86Environment::X86ParameterMode::X32;
+
+        if(targetEnvironment._defaultInstructionMode == X86Environment::X86InstructionMode::LEGACY){
+            assemblyFile << "[BITS 32]\n";
+        }
+        else {
+            assemblyFile << "[BITS 64]\n";
+        }
 
         for(const auto& instructionPrototype : X86InstructionPrototypeList){
             if(instructionPrototype.getValidMode() == targetEnvironment._defaultInstructionMode || instructionPrototype.getValidMode() == X86Environment::X86InstructionMode::BOTH){
@@ -180,7 +187,7 @@ void runTests(){
         };
 
         X86Environment targetEnvironment;
-        targetEnvironment._defaultAdressMode = X86Environment::X86AddressMode::X16;
+        targetEnvironment._defaultAdressMode = X86Environment::X86AddressMode::X32;
         targetEnvironment._defaultInstructionMode = X86Environment::X86InstructionMode::LEGACY;
         targetEnvironment._defaultParameterMode = X86Environment::X86ParameterMode::X32;
 
@@ -193,6 +200,7 @@ void runTests(){
             std::string line = getAssemblyLine();
             currentLine++;
             if(std::size(line) == 0) continue;
+            if(line.find("[BITS", 0) == 0) continue;
 
             auto decodedInstruction = disassembler.decodeInstruction(binaryFileIterator);
             std::string decodedInstructionString = decodedInstruction->toString();
