@@ -61,7 +61,21 @@ std::string generateParameterTestAssembly(const X86Environment& targetEnvironmen
         return (*addressParameterPrototype)->specify(targetEnvironment._defaultAdressMode, generatedModrm, generatedSib, generatedDisplacement).toString();
     }
     else if (auto immediateParameterPrototype = std::get_if<std::shared_ptr<X86InstructionImmediateParameterPrototype>>(&parameterPrototype)){
-        return (*immediateParameterPrototype)->specify(static_cast<uint64_t>(distributionOverByte(random))).toString();
+        uint64_t generatedImmediate = static_cast<uint64_t>(distributionOverByte(random));
+        switch((*immediateParameterPrototype)->size() / 8){
+            case 1:
+                break;
+            case 2:
+                generatedImmediate = static_cast<uint64_t>(distributionOverWord(random));
+                break;
+            case 4:
+                generatedImmediate = static_cast<uint64_t>(distributionOverDWord(random));
+                break;
+            case 8:
+                generatedImmediate = static_cast<uint64_t>(distributionOverQWord(random));
+                break;
+        }
+        return (*immediateParameterPrototype)->specify(generatedImmediate).toString();
     }
 
     return "UNKOWN PARAMETER PROTOTYPE";
@@ -133,7 +147,7 @@ void generateTestData(std::string assemblerLocation){
     try{
         std::stringstream assembleCommand;
         assembleCommand << "\"" << assemblerLocation << "\"";
-        assembleCommand << " -f bin -o test_data.bin test_data.asm";
+        assembleCommand << " -f bin -O0 -o test_data.bin test_data.asm";
         std::system(assembleCommand.str().c_str());
     }
     catch(const std::exception& e){
