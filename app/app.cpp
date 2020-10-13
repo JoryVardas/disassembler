@@ -24,7 +24,7 @@ int main(/*int argc, char* argv[]*/){
 
                 X86Environment env;
                 env._defaultAdressMode = X86Environment::X86AddressMode::X32;
-                env._defaultInstructionMode = X86Environment::X86InstructionMode::X32;
+                env._defaultInstructionMode = X86Environment::X86InstructionMode::LEGACY;
                 env._defaultParameterMode = X86Environment::X86ParameterMode::X32;
                 X86Disassembler disasm(env);
                 std::vector<std::unique_ptr<Instruction>> decodedInstructions;
