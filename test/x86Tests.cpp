@@ -313,9 +313,9 @@ void runTests(bool outputSuccess){
             std::string decodedInstructionString = decodedInstruction->toString();
 
             if(decodedInstructionString != line){
-                std::cout << "Test Faild:\n"
+                std::cout << "Test Failed:\n"
                             "\tDecoded instruction : " << decodedInstructionString << "\n"
-                            "\tOriginal instruciion: " << line << "\n";
+                            "\tOriginal instruction: " << line << "\n";
                 return;
             }
             else if (outputSuccess){
