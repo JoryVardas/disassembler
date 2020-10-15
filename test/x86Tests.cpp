@@ -251,7 +251,7 @@ void generateTestData(std::string assemblerLocation){
     }
 }
 
-void runTests(){
+void runTests(bool outputSuccess){
     try{
         std::filesystem::path assemblyFilePath(".\\test_data.asm");
         std::filesystem::path binaryFilePath(".\\test_data.bin");
@@ -318,6 +318,11 @@ void runTests(){
                             "\tOriginal instruciion: " << line << "\n";
                 return;
             }
+            else if (outputSuccess){
+                std::cout << "Test Succeded:\n"
+                             "\tDecoded instruction : " << decodedInstructionString << "\n"
+                             "\tOriginal instruction: " << line << "\n";
+            }
         }
 
         std::cout << "Test Success";
@@ -361,7 +366,10 @@ int main(int argc, const char* argv[]){
             return 0;
         }
         else if(*currentArgument == "--run"){
-            runTests();
+            bool outputSuccess = std::any_of(std::cbegin(arguments), std::cend(arguments), [](const auto& argument){
+                return argument == "--output-success";
+            });
+            runTests(outputSuccess);
             return 0;
         }
     }
