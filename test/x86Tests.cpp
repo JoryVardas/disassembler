@@ -21,12 +21,73 @@ std::uniform_int_distribution<unsigned short> distributionOverWord(0, std::numer
 std::uniform_int_distribution<unsigned int> distributionOverDWord(0, std::numeric_limits<unsigned int>::max());
 std::uniform_int_distribution<unsigned long long> distributionOverQWord(0, std::numeric_limits<unsigned long long>::max());
 
-std::string generateParameterTestAssembly(const X86Environment& targetEnvironment, const X86InstructionParameterPrototype& parameterPrototype){
-    if (auto registerParameterPrototype = std::get_if<std::shared_ptr<X86InstructionRegisterParameterPrototype>>(&parameterPrototype)){
-        return (*registerParameterPrototype)->specify(X86InstructionRegisterParameterGroups.at(static_cast<std::size_t>(distributionOver0to7(random)))).toString();
+template <typename A>
+std::vector<std::vector<A>> cartesian_product(const std::vector<A>& vecA, const std::vector<A>& vecB){
+    std::vector<std::vector<A>> ret;
+    std::for_each(std::cbegin(vecA), std::cend(vecA), [&ret, &vecB](const A& a){
+        std::for_each(std::cbegin(vecB), std::cend(vecB), [&ret, &a](const A& b){
+            std::vector<A> cur;
+            cur.emplace_back(a);
+            cur.emplace_back(b);
+            ret.emplace_back(cur);
+        });
+    });
+    return ret;
+}
+template <typename A>
+std::vector<std::vector<A>> cartesian_product(const std::vector<A>& vecA, const std::vector<std::vector<A>>& vecB){
+    std::vector<std::vector<A>> ret;
+    std::for_each(std::cbegin(vecA), std::cend(vecA), [&ret, &vecB](const A& a){
+        std::for_each(std::cbegin(vecB), std::cend(vecB), [&ret, &a](const std::vector<A>& b){
+            std::vector<A> cur;
+            cur.emplace_back(a);
+            std::for_each(std::cbegin(b), std::cend(b), [&cur](const A& bItem){
+                cur.emplace_back(bItem);
+            });
+            ret.emplace_back(cur);
+        });
+    });
+    return ret;
+}
+
+template <typename T>
+uint16_t getParameterPrototypeSize(const T& proto){
+    if (auto registerParameterPrototype = std::get_if<std::shared_ptr<X86InstructionRegisterParameterPrototype>>(&proto)){
+        return (*registerParameterPrototype)->size();
     }
-    else if(auto addressParameterPrototype = std::get_if<std::shared_ptr<X86InstructionAddressParameterPrototype>>(&parameterPrototype)){
-        const modrm_t generatedModrm = [](){
+    else if(auto addressParameterPrototype = std::get_if<std::shared_ptr<X86InstructionAddressParameterPrototype>>(&proto)){
+        switch((*addressParameterPrototype)->size()){
+            case X86InstructionAddressParameterSize::BYTE_PTR:
+                return static_cast<uint16_t>(8);
+            case X86InstructionAddressParameterSize::WORD_PTR:
+                return static_cast<uint16_t>(16);
+            case X86InstructionAddressParameterSize::DWORD_PTR:
+                return static_cast<uint16_t>(32);
+            case X86InstructionAddressParameterSize::QWORD_PTR:
+                return static_cast<uint16_t>(64);
+            case X86InstructionAddressParameterSize::XMM_PTR:
+                return static_cast<uint16_t>(128);
+            case X86InstructionAddressParameterSize::YMM_PTR:
+                return static_cast<uint16_t>(256);
+            case X86InstructionAddressParameterSize::ZMM_PTR:
+                return static_cast<uint16_t>(512);
+        }
+        return 0;
+    }
+    else if (auto immediateParameterPrototype = std::get_if<std::shared_ptr<X86InstructionImmediateParameterPrototype>>(&proto)){
+        return static_cast<uint16_t>((*immediateParameterPrototype)->size()) /** 8*/;
+    }
+
+    else{
+        return 0;
+    }
+}
+
+std::string generateRegisterParameterTestAssembly(const std::shared_ptr<X86InstructionRegisterParameterPrototype> parameterPrototype){
+    return parameterPrototype->specify(X86InstructionRegisterParameterGroups.at(static_cast<std::size_t>(distributionOver0to7(random)))).toString();
+}
+std::string generateAddressParameterTestAssembly(const X86Environment& targetEnvironment, const std::shared_ptr<X86InstructionAddressParameterPrototype> parameterPrototype){
+    const modrm_t generatedModrm = [](){
             while(true){
                 modrm_t potentialModrm = static_cast<modrm_t>(distributionOverByte(random));
                 if (getModrmMod(potentialModrm) != std::byte(3)) return potentialModrm;
@@ -58,11 +119,11 @@ std::string generateParameterTestAssembly(const X86Environment& targetEnvironmen
             return static_cast<uint64_t>(0);
         }();
 
-        return (*addressParameterPrototype)->specify(targetEnvironment._defaultAdressMode, generatedModrm, generatedSib, generatedDisplacement).toString();
-    }
-    else if (auto immediateParameterPrototype = std::get_if<std::shared_ptr<X86InstructionImmediateParameterPrototype>>(&parameterPrototype)){
-        uint64_t generatedImmediate = static_cast<uint64_t>(distributionOverByte(random));
-        switch((*immediateParameterPrototype)->size() / 8){
+        return parameterPrototype->specify(targetEnvironment._defaultAdressMode, generatedModrm, generatedSib, generatedDisplacement).toString();
+}
+std::string generateImmediateParameterTestAssembly(const std::shared_ptr<X86InstructionImmediateParameterPrototype> parameterPrototype){
+    uint64_t generatedImmediate = static_cast<uint64_t>(distributionOverByte(random));
+        switch(parameterPrototype->size() / 8){
             case 1:
                 break;
             case 2:
@@ -75,7 +136,18 @@ std::string generateParameterTestAssembly(const X86Environment& targetEnvironmen
                 generatedImmediate = static_cast<uint64_t>(distributionOverQWord(random));
                 break;
         }
-        return (*immediateParameterPrototype)->specify(generatedImmediate).toString();
+        return parameterPrototype->specify(generatedImmediate).toString();
+}
+
+std::string generateParameterTestAssembly(const X86Environment& targetEnvironment, const X86InstructionParameterPrototype& parameterPrototype){
+    if (auto registerParameterPrototype = std::get_if<std::shared_ptr<X86InstructionRegisterParameterPrototype>>(&parameterPrototype)){
+        return generateRegisterParameterTestAssembly(*registerParameterPrototype);
+    }
+    else if(auto addressParameterPrototype = std::get_if<std::shared_ptr<X86InstructionAddressParameterPrototype>>(&parameterPrototype)){
+        return generateAddressParameterTestAssembly(targetEnvironment, *addressParameterPrototype);
+    }
+    else if (auto immediateParameterPrototype = std::get_if<std::shared_ptr<X86InstructionImmediateParameterPrototype>>(&parameterPrototype)){
+        return generateImmediateParameterTestAssembly(*immediateParameterPrototype);
     }
 
     return "UNKOWN PARAMETER PROTOTYPE";
@@ -84,32 +156,53 @@ std::string generateParameterTestAssembly(const X86Environment& targetEnvironmen
 std::string generateInstructionTestAssembly(const X86Environment& targetEnvironment, const X86InstructionPrototype& instruction){
     std::stringstream generatedAssembly;
     
-    const auto& instructionParameterList = instruction.getPossibleInstructionParameters();
+    const auto& instructionParameterPrototypeList = instruction.getPossibleInstructionParameters();
 
-    if(std::size(instructionParameterList) == 0){
+    if(std::size(instructionParameterPrototypeList) == 0){
         generatedAssembly << instruction.getInstructionName() << "\n";
         return generatedAssembly.str();
     }
 
-    const size_t longestParameterListSize = std::size((*std::max_element(std::cbegin(instructionParameterList), std::cend(instructionParameterList), [](const InstructionParameterPrototype& a, const InstructionParameterPrototype& b){
-        return std::size(a.second) < std::size(b.second);
-    })).second);
+    
+    auto parameterCombinations = [&instructionParameterPrototypeList](){
+        switch(std::size(instructionParameterPrototypeList)){
+        case 1:
+            {
+                std::vector<InstructionParameterGroup> ret;
+                ret.emplace_back(instructionParameterPrototypeList.at(0).second);
+                return ret;
+            }
+        case 2:
+            return cartesian_product(instructionParameterPrototypeList.at(0).second, instructionParameterPrototypeList.at(1).second);
+        case 3:
+            return cartesian_product(instructionParameterPrototypeList.at(0).second, cartesian_product(instructionParameterPrototypeList.at(1).second, instructionParameterPrototypeList.at(2).second));
+        case 4:
+            return cartesian_product(instructionParameterPrototypeList.at(0).second, cartesian_product(instructionParameterPrototypeList.at(1).second, cartesian_product(instructionParameterPrototypeList.at(2).second, instructionParameterPrototypeList.at(3).second)));
+        default:
+            return std::vector<InstructionParameterGroup>();
+        }
 
-    for(size_t i = 0; i < longestParameterListSize; ++i){
+    }();
+
+    parameterCombinations.erase(
+        std::remove_if(std::begin(parameterCombinations), std::end(parameterCombinations), [](const InstructionParameterGroup& group){
+            uint16_t firstParamSize = getParameterPrototypeSize(group.at(0));
+            return std::count_if(++std::begin(group), std::end(group), [&firstParamSize](const auto& param){
+                return getParameterPrototypeSize(param) > firstParamSize;
+            }) > 0;
+        }),
+        std::end(parameterCombinations));
+
+    std::for_each(std::begin(parameterCombinations), std::end(parameterCombinations), [&generatedAssembly, &instruction, &targetEnvironment](const InstructionParameterGroup& group){
         generatedAssembly << instruction.getInstructionName() << " ";
 
-        auto& parameterListIterator = std::begin(instructionParameterList);
-        const auto& parameterListEnd = std::cend(instructionParameterList);
+        generatedAssembly << generateParameterTestAssembly(targetEnvironment, group.at(0));
 
-        generatedAssembly << generateParameterTestAssembly(targetEnvironment, (std::size((*parameterListIterator).second) <= i) ? (*parameterListIterator).second.at(0) : (*parameterListIterator).second.at(i));
-        ++parameterListIterator;
-
-        std::for_each(parameterListIterator, parameterListEnd, [&targetEnvironment, &generatedAssembly, &i](const auto& parameterList){
-            generatedAssembly << ", " << generateParameterTestAssembly(targetEnvironment, (std::size(parameterList.second) <= i) ? parameterList.second.at(0) : parameterList.second.at(i));
+        std::for_each(++std::begin(group), std::end(group), [&generatedAssembly, &targetEnvironment](const auto& param){
+            generatedAssembly << ", " << generateParameterTestAssembly(targetEnvironment, param);
         });
-
         generatedAssembly << "\n";
-    }
+    });
 
     return generatedAssembly.str();
 }
