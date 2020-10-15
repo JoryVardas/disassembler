@@ -12,20 +12,6 @@ X86Instruction::~X86Instruction() = default;
         
 std::string X86Instruction::toString() const {
         std::stringstream returnString;
-
-        if(std::size(_prefixList) > 0){
-                returnString << "[";
-
-                auto curPrefix = std::cbegin(_prefixList);
-                auto endPrefix = std::cend(_prefixList);
-
-                returnString << X86InstructionPrefixToString(*(curPrefix++));
-                std::for_each(curPrefix, endPrefix, [&returnString](const auto& prefix){
-                        returnString << ", " << X86InstructionPrefixToString(prefix);
-                });
-
-                returnString << "] ";
-        }
         returnString << _name;
 
         if(std::size(_parameters) > 0){
