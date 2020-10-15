@@ -353,6 +353,8 @@ void printHelp(){
         "\t\t Will generate the test data required for the tests.\n"
         "\t --run\n"
         "\t\t Will run the tests.\n"
+        "\t --output-success\n"
+        "\t\t Will cause successful tests to be printed when running tests.\n"
         << std::endl;
 }
 
