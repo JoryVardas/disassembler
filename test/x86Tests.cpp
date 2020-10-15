@@ -297,6 +297,7 @@ void runTests(bool outputSuccess){
         targetEnvironment._defaultAdressMode = X86Environment::X86AddressMode::X32;
         targetEnvironment._defaultInstructionMode = X86Environment::X86InstructionMode::LEGACY;
         targetEnvironment._defaultParameterMode = X86Environment::X86ParameterMode::X32;
+        targetEnvironment._endianness = X86Environment::X86Endianness::LITTLE_ENDIAN;
 
         X86Disassembler disassembler(targetEnvironment);
 

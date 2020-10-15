@@ -18,10 +18,15 @@ public:
                 X64,
                 BOTH
         };
+        enum class X86Endianness {
+                LITTLE_ENDIAN,
+                BIG_ENDIAN
+        };
 
         X86AddressMode _defaultAdressMode;
         X86ParameterMode _defaultParameterMode;
         X86InstructionMode _defaultInstructionMode;
+        X86Endianness _endianness;
 private:
 };
 

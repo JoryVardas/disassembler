@@ -27,7 +27,6 @@ public:
 
 private:
         X86Environment _disassemblerEnvirionment;
-        PADDING(4);
 
         std::vector<X86InstructionPrefix> decodeInstructionPrefixes(BidirectionalIterator<std::byte>& bytesToDecode) const;
         X86InstructionOpcode retrieveInstructionOpcode(BidirectionalIterator<std::byte>& bytesToDecode) const;

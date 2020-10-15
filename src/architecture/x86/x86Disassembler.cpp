@@ -264,37 +264,73 @@ std::vector<std::shared_ptr<InstructionParameter>> X86Disassembler::decodeInstru
                 }
                 else if(auto addressPrototype = std::get_if<std::shared_ptr<X86InstructionAddressParameterPrototype>>(&prototype)){
                         uint64_t displacementValue = 0;
-                        switch(getDisplacementSizeRequiredByModrm(modrm, currentAddressMode) / 8){
-                                case 4:
-                                        displacementValue += static_cast<uint64_t>(*(bytesToDecode++));
-                                        displacementValue *= 256;
-                                        displacementValue += static_cast<uint64_t>(*(bytesToDecode++));
-                                        displacementValue *= 256;
-                                case 2:
-                                        displacementValue += static_cast<uint64_t>(*(bytesToDecode++));
-                                        displacementValue *= 256;
-                                case 1:
-                                        displacementValue += static_cast<uint64_t>(*(bytesToDecode++));
-                                        break;
+                        if (_disassemblerEnvirionment._endianness==X86Environment::X86Endianness::BIG_ENDIAN){
+                                switch(getDisplacementSizeRequiredByModrm(modrm, currentAddressMode) / 8){
+                                        case 4:
+                                                displacementValue += static_cast<uint64_t>(*(bytesToDecode++));
+                                                displacementValue *= 256;
+                                                displacementValue += static_cast<uint64_t>(*(bytesToDecode++));
+                                                displacementValue *= 256;
+                                        case 2:
+                                                displacementValue += static_cast<uint64_t>(*(bytesToDecode++));
+                                                displacementValue *= 256;
+                                        case 1:
+                                                displacementValue += static_cast<uint64_t>(*(bytesToDecode++));
+                                                break;
+                                }
+                        }
+                        else if (_disassemblerEnvirionment._endianness==X86Environment::X86Endianness::LITTLE_ENDIAN){
+                                switch(getDisplacementSizeRequiredByModrm(modrm, currentAddressMode) / 8){
+                                        case 4:
+                                                displacementValue += static_cast<uint64_t>(*(bytesToDecode++));
+                                                displacementValue += static_cast<uint64_t>(*(bytesToDecode++)) * 256;
+                                                displacementValue += static_cast<uint64_t>(*(bytesToDecode++)) * 256 * 256;
+                                                displacementValue += static_cast<uint64_t>(*(bytesToDecode++)) * 256 * 256 * 256;
+                                                break;
+                                        case 2:
+                                                displacementValue += static_cast<uint64_t>(*(bytesToDecode++));
+                                                displacementValue += static_cast<uint64_t>(*(bytesToDecode++)) * 256;
+                                                break;
+                                        case 1:
+                                                displacementValue += static_cast<uint64_t>(*(bytesToDecode++));
+                                                break;
+                                }
                         }
                         specifiedParameterList.emplace_back(std::make_shared<X86InstructionAddressParameter>((*addressPrototype)->specify(currentAddressMode, modrm, sib, displacementValue)));
                 }
                 else if (auto immediatePrototype = std::get_if<std::shared_ptr<X86InstructionImmediateParameterPrototype>>(&prototype)){
                         uint64_t immediateValue = 0;
-                        switch((*immediatePrototype)->size() / 8){
-                                case 4:
-                                        immediateValue += static_cast<uint64_t>(*(bytesToDecode++));
-                                        immediateValue *= 256;
-                                        immediateValue += static_cast<uint64_t>(*(bytesToDecode++));
-                                        immediateValue *= 256;
-                                        //[[fallthrough]]
-                                case 2:
-                                        immediateValue += static_cast<uint64_t>(*(bytesToDecode++));
-                                        immediateValue *= 256;
-                                        //[[fallthrough]]
-                                case 1:
-                                        immediateValue += static_cast<uint64_t>(*(bytesToDecode++));
-                                        break;
+                        if (_disassemblerEnvirionment._endianness==X86Environment::X86Endianness::BIG_ENDIAN){
+                                switch((*immediatePrototype)->size() / 8){
+                                        case 4:
+                                                immediateValue += static_cast<uint64_t>(*(bytesToDecode++));
+                                                immediateValue *= 256;
+                                                immediateValue += static_cast<uint64_t>(*(bytesToDecode++));
+                                                immediateValue *= 256;
+                                        case 2:
+                                                immediateValue += static_cast<uint64_t>(*(bytesToDecode++));
+                                                immediateValue *= 256;
+                                        case 1:
+                                                immediateValue += static_cast<uint64_t>(*(bytesToDecode++));
+                                                break;
+                                }
+                        }
+                        else if (_disassemblerEnvirionment._endianness==X86Environment::X86Endianness::LITTLE_ENDIAN){
+                                switch((*immediatePrototype)->size() / 8){
+                                        case 4:
+                                                immediateValue += static_cast<uint64_t>(*(bytesToDecode++));
+                                                immediateValue += static_cast<uint64_t>(*(bytesToDecode++)) * 256;
+                                                immediateValue += static_cast<uint64_t>(*(bytesToDecode++)) * 256 * 256;
+                                                immediateValue += static_cast<uint64_t>(*(bytesToDecode++)) * 256 * 256 * 256;
+                                                break;
+                                        case 2:
+                                                immediateValue += static_cast<uint64_t>(*(bytesToDecode++));
+                                                immediateValue += static_cast<uint64_t>(*(bytesToDecode++)) * 256;
+                                                break;
+                                        case 1:
+                                                immediateValue += static_cast<uint64_t>(*(bytesToDecode++));
+                                                break;
+                                }
                         }
 
                         specifiedParameterList.emplace_back(std::make_shared<X86InstructionImmediateParameter>((*immediatePrototype)->specify(immediateValue)));
