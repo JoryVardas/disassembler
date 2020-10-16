@@ -183,15 +183,15 @@ std::vector<std::shared_ptr<InstructionParameter>> X86Disassembler::decodeInstru
                 
                 return false;
         };
-        auto removeAddressSizes = [&currentAddressMode](const X86InstructionParameterPrototype& candidateParameter){
+        auto removeAddressSizes = [&currentParameterMode](const X86InstructionParameterPrototype& candidateParameter){
                 if (!std::holds_alternative<std::shared_ptr<X86InstructionAddressParameterPrototype>>(candidateParameter)) return false;
 
-                switch (currentAddressMode){
-                        case AddressMode::X16:
+                switch (currentParameterMode){
+                        case ParameterMode::X16:
                                 return std::get<std::shared_ptr<X86InstructionAddressParameterPrototype>>(candidateParameter)->size() != X86InstructionAddressParameterSize::WORD_PTR;
-                        case AddressMode::X32:
+                        case ParameterMode::X32:
                                 return std::get<std::shared_ptr<X86InstructionAddressParameterPrototype>>(candidateParameter)->size() != X86InstructionAddressParameterSize::DWORD_PTR;
-                        case AddressMode::X64:
+                        case ParameterMode::X64:
                                 return std::get<std::shared_ptr<X86InstructionAddressParameterPrototype>>(candidateParameter)->size() != X86InstructionAddressParameterSize::QWORD_PTR;
                 }
                 
