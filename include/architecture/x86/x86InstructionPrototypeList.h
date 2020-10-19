@@ -7,6 +7,9 @@
 
 
 #define ANY_PREFIX std::vector<X86InstructionPrefix>()
+#define PREFIX_LIST(...) std::vector<X86InstructionPrefix>{__VA_ARGS__}
+#define PREFIX_66 X86InstructionPrefix::OPERAND_SIZE_OVERRIDE
+#define PREFIX_67 X86InstructionPrefix::ADDRESS_SIZE_OVERRIDE
 
 #define imm8 std::make_shared<X86InstructionImmediateParameterPrototypeSpecification<8>>()
 #define imm16 std::make_shared<X86InstructionImmediateParameterPrototypeSpecification<16>>()
@@ -14,13 +17,15 @@
 #define r8 std::make_shared<X86InstructionRegisterParameterPrototypeSpecification<8>>()
 #define r16 std::make_shared<X86InstructionRegisterParameterPrototypeSpecification<16>>()
 #define r32 std::make_shared<X86InstructionRegisterParameterPrototypeSpecification<32>>()
+#define r64
 #define m8 std::make_shared<X86InstructionAddressParameterPrototypeSpecification<X86InstructionAddressParameterSize::BYTE_PTR>>()
 #define m16 std::make_shared<X86InstructionAddressParameterPrototypeSpecification<X86InstructionAddressParameterSize::WORD_PTR>>()
 #define m32 std::make_shared<X86InstructionAddressParameterPrototypeSpecification<X86InstructionAddressParameterSize::DWORD_PTR>>()
+#define m64
 #define rm8 r8, m8
 #define rm16 r16, m16
 #define rm32 r32, m32
-#define rm64 /*r64, m64*/
+#define rm64
 
 #define AL std::make_shared<X86InstructionSingleRegisterParameterPrototypeSpecification>("AL")
 #define AX std::make_shared<X86InstructionSingleRegisterParameterPrototypeSpecification>("AX")
@@ -45,13 +50,31 @@ const std::vector<X86InstructionPrototype> X86InstructionPrototypeList {
     {"ADC", MODE::BOTH, ANY_PREFIX, 0x15, {PARAMETER(IMPLIED, AX, EAX, RAX), PARAMETER(IMMEDIATE, imm16, imm32)}, STANDARD_COMPARISON},
     {"ADC", MODE::BOTH, ANY_PREFIX, 0x80, 2, {PARAMETER(MODRM_RM, rm8), PARAMETER(IMMEDIATE, imm8)}, STANDARD_COMPARISON},
     {"ADC", MODE::BOTH, ANY_PREFIX, 0x81, 2, {PARAMETER(MODRM_RM, rm16, rm32, rm64), PARAMETER(IMMEDIATE, imm16, imm32)}, STANDARD_COMPARISON},
-    //{"AAD", ANY_PREFIX, 0xd5, {{X86InstructionParameterLocation::IMMEDIATE, {imm8}}}, {}},
-    //{"ADC", ANY_PREFIX, 0x80, 2, {{X86InstructionParameterLocation::MODRM_RM, {r8, m8}}, {X86InstructionParameterLocation::IMMEDIATE, {imm8}}}, {}},
-    //{"ADC", ANY_PREFIX, 0x81, 2, {{X86InstructionParameterLocation::MODRM_RM, {r16, r32, m16, m32}}, {X86InstructionParameterLocation::IMMEDIATE, {imm16, imm32}}}, {}}
+    {"ADC", MODE::BOTH, ANY_PREFIX, 0x83, 2, {PARAMETER(MODRM_RM, rm16, rm32, rm64), PARAMETER(IMMEDIATE, imm8)}, STANDARD_COMPARISON},
+    {"ADC", MODE::BOTH, ANY_PREFIX, 0x10, {PARAMETER(MODRM_RM, rm8), PARAMETER(MODRM_REG, r8)}, STANDARD_COMPARISON},
+    {"ADC", MODE::BOTH, ANY_PREFIX, 0x11, {PARAMETER(MODRM_RM, rm16, rm32, rm64), PARAMETER(MODRM_REG, r16, r32, r64)}, STANDARD_COMPARISON},
+    {"ADC", MODE::BOTH, ANY_PREFIX, 0x12, {PARAMETER(MODRM_REG, r8), PARAMETER(MODRM_RM, rm8)}, STANDARD_COMPARISON},
+    {"ADC", MODE::BOTH, ANY_PREFIX, 0x13, {PARAMETER(MODRM_REG, r16, r32, r64), PARAMETER(MODRM_RM, rm16, rm32, rm64)}, STANDARD_COMPARISON},
+
+    {"ADCX", MODE::BOTH, PREFIX_LIST(PREFIX_66), 0x0f38f6, {PARAMETER(MODRM_REG, r32, r64), PARAMETER(MODRM_REG, rm32, rm64)}, STANDARD_COMPARISON},
+
+    {"ADD", MODE::BOTH, ANY_PREFIX, 0x04, {PARAMETER(IMPLIED, AL), PARAMETER(IMMEDIATE, imm8)}, STANDARD_COMPARISON},
+    {"ADD", MODE::BOTH, ANY_PREFIX, 0x05, {PARAMETER(IMPLIED, AX, EAX, RAX), PARAMETER(IMMEDIATE, imm16, imm32)}, STANDARD_COMPARISON},
+    {"ADD", MODE::BOTH, ANY_PREFIX, 0x80, 0, {PARAMETER(MODRM_RM, rm8), PARAMETER(IMMEDIATE, imm8)}, STANDARD_COMPARISON},
+    {"ADD", MODE::BOTH, ANY_PREFIX, 0x81, 0, {PARAMETER(MODRM_RM, rm16, rm32, rm64), PARAMETER(IMMEDIATE, imm16, imm32)}, STANDARD_COMPARISON},
+    {"ADD", MODE::BOTH, ANY_PREFIX, 0x83, 0, {PARAMETER(MODRM_RM, rm16, rm32, rm64), PARAMETER(IMMEDIATE, imm8)}, STANDARD_COMPARISON},
+    {"ADD", MODE::BOTH, ANY_PREFIX, 0x00, {PARAMETER(MODRM_RM, rm8), PARAMETER(MODRM_REG, r8)}, STANDARD_COMPARISON},
+    {"ADD", MODE::BOTH, ANY_PREFIX, 0x01, {PARAMETER(MODRM_RM, rm16, rm32, rm64), PARAMETER(MODRM_REG, r16, r32, r64)}, STANDARD_COMPARISON},
+    {"ADD", MODE::BOTH, ANY_PREFIX, 0x02, {PARAMETER(MODRM_REG, r8), PARAMETER(MODRM_RM, rm8)}, STANDARD_COMPARISON},
+    {"ADD", MODE::BOTH, ANY_PREFIX, 0x03, {PARAMETER(MODRM_REG, r16, r32, r64), PARAMETER(MODRM_RM, rm16, rm32, rm64)}, STANDARD_COMPARISON},
+
+    
 };
 
 
 #undef ANY_PREFIX
+#undef PREFIX_66
+#undef PREFIX_67
 
 #undef imm8
 #undef imm16
@@ -59,9 +82,15 @@ const std::vector<X86InstructionPrototype> X86InstructionPrototypeList {
 #undef r8
 #undef r16
 #undef r32
+#undef r64
 #undef m8
 #undef m16
 #undef m32
+#undef m64
+#undef rm8
+#undef rm16
+#undef rm32
+#undef rm64
 
 #undef AL
 #undef AX
