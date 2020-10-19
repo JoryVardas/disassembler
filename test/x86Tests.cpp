@@ -188,7 +188,12 @@ std::string generateInstructionTestAssembly(const X86Environment& targetEnvironm
         std::remove_if(std::begin(parameterCombinations), std::end(parameterCombinations), [](const InstructionParameterGroup& group){
             uint16_t firstParamSize = getParameterPrototypeSize(group.at(0));
             return std::count_if(++std::begin(group), std::end(group), [&firstParamSize](const auto& param){
-                return getParameterPrototypeSize(param) > firstParamSize;
+                uint16_t paramSize = getParameterPrototypeSize(param);
+                if (std::holds_alternative<std::shared_ptr<X86InstructionRegisterParameterPrototype>>(param)
+                    || std::holds_alternative<std::shared_ptr<X86InstructionAddressParameterPrototype>>(param)){
+                    return paramSize != firstParamSize;
+                }
+                else return paramSize > firstParamSize;
             }) > 0;
         }),
         std::end(parameterCombinations));
