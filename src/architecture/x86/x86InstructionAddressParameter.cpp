@@ -46,9 +46,9 @@ std::string X86InstructionAddressParameter::toString() const{
     std::stringstream returnString;
     returnString << X86InstructionAddressParameterSizeToString(_addressSize) << " [";
 
+    if (_registerDisplacement) returnString << _registerDisplacement.value().toString() << " + ";
     if (_registerBase) returnString << _registerBase.value().toString();
     if (_scaleFactor != 1) returnString << "*" << std::to_string(_scaleFactor);
-    if (_registerDisplacement) returnString << " + " << _registerDisplacement.value().toString();
     if (_constantDisplacement != 0) returnString << " + " << std::to_string(_constantDisplacement);
 
     returnString << "]";
