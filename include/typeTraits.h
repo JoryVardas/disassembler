@@ -31,4 +31,12 @@ struct all_in<TypeCollection<TypesToCheck...>, TypeCollection<TypesToCheckAgains
     : std::conjunction<is_in<TypesToCheck, TypeCollection<TypesToCheckAgainst...>>...>
 {};
 
+
+template<typename ...Ts>
+struct change_container;
+template <template<typename...> typename NewContainer, template<typename> typename OldContainer, typename ...Ts>
+struct change_container<NewContainer<>, OldContainer<Ts...>>{
+    using _type = NewContainer<Ts...>;
+};
+
 #endif

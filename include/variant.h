@@ -7,19 +7,19 @@
 template<typename ...Ty>
 struct _variant_join_helper;
 template<typename ...A, typename ...B>
-struct _variant_join_helper<std::variant<A...>, std::variant<B...>>{
-    using _type = std::variant<A..., B...>;
+struct _variant_join_helper<TypeCollection<A...>, TypeCollection<B...>>{
+    using _type = TypeCollection<A..., B...>;
 };
 
 template <typename ...Ty>
 struct _variant_join;
 template <typename NonVariantType>
 struct _variant_join<NonVariantType>{
-    using _type = std::variant<NonVariantType>;
+    using _type = TypeCollection<NonVariantType>;
 };
 template <typename ...VariantTypes>
 struct _variant_join<std::variant<VariantTypes...>>{
-    using _type = std::variant<VariantTypes...>;
+    using _type = TypeCollection<VariantTypes...>;
 };
 template <typename FirstVariant, typename ...RemainingVariants>
 struct _variant_join<FirstVariant, RemainingVariants...>{
@@ -29,7 +29,7 @@ struct _variant_join<FirstVariant, RemainingVariants...>{
 };
 
 template<typename ...Variants>
-using variant_join = typename _variant_join<Variants...>::_type;
+using variant_join = typename change_container<std::variant<>, typename _variant_join<Variants...>::_type>::_type;
 
 
 
