@@ -265,7 +265,7 @@ std::vector<std::shared_ptr<InstructionParameter>> X86Disassembler::decodeInstru
                 else if(auto addressPrototype = std::get_if<std::shared_ptr<X86InstructionAddressParameterPrototype>>(&prototype)){
                         uint64_t displacementValue = 0;
                         if (_disassemblerEnvirionment._endianness==X86Environment::X86Endianness::BIG_ENDIAN){
-                                switch(getDisplacementSizeRequiredByModrm(modrm, currentAddressMode) / 8){
+                                switch(getDisplacementSizeRequiredByModrm(modrm, sib, currentAddressMode) / 8){
                                         case 4:
                                                 displacementValue += static_cast<uint64_t>(*(bytesToDecode++));
                                                 displacementValue *= 256;
@@ -280,7 +280,7 @@ std::vector<std::shared_ptr<InstructionParameter>> X86Disassembler::decodeInstru
                                 }
                         }
                         else if (_disassemblerEnvirionment._endianness==X86Environment::X86Endianness::LITTLE_ENDIAN){
-                                switch(getDisplacementSizeRequiredByModrm(modrm, currentAddressMode) / 8){
+                                switch(getDisplacementSizeRequiredByModrm(modrm, sib, currentAddressMode) / 8){
                                         case 4:
                                                 displacementValue += static_cast<uint64_t>(*(bytesToDecode++));
                                                 displacementValue += static_cast<uint64_t>(*(bytesToDecode++)) * 256;
