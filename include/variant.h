@@ -36,20 +36,18 @@ using variant_join = typename change_container<std::variant<>, typename _variant
 
 template<typename ...Ty>
 struct _holds_any_alternative_helper;
-template<typename ...VariantTypes, typename ...Alternatives>
-struct _holds_any_alternative_helper<std::variant<VariantTypes...>, std::variant<Alternatives...>>{
-    using Variant = std::variant<VariantTypes...>;
-
-    static bool _holds(Variant& var){
+template<typename Variant, typename ...VariantTypes, typename ...Alternatives>
+struct _holds_any_alternative_helper<Variant, std::variant<VariantTypes...>, std::variant<Alternatives...>>{
+static bool _holds(Variant& var){
         static_assert(all_in<TypeCollection<Alternatives...>, TypeCollection<VariantTypes...>>::value,
                       "Can't check if a variant holds an alternative if that alternative is not one of the alternatives defined for the variant, or if the variant is defined to have multiple alternatives of the same type.");
 
-        return (holds_alternative<Alternatives>(var) | ...);
+        return (std::holds_alternative<Alternatives>(var) || ...);
     }
 };
 
 template<typename ...Alternatives, typename Variant>
 bool holds_any_alternative(Variant& var){
-    return _holds_any_alternative_helper<Variant, variant_join<Alternatives...>>::_holds(var);
+    return _holds_any_alternative_helper<Variant, std::remove_const_t<Variant>, variant_join<Alternatives...>>::_holds(var);
 }
 #endif
