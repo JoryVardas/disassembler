@@ -4,7 +4,7 @@
 #define TYPE_TRAITS_H
 
 template <typename ...Ts>
-struct Collection{};
+struct TypeCollection{};
 
 template <typename ...Ts>
 struct is_in{};
@@ -13,22 +13,22 @@ struct is_in<T>
     : std::false_type
 {};
 template <typename T, typename ...Ts>
-struct is_in<T, Collection<Ts...>> 
+struct is_in<T, TypeCollection<Ts...>> 
     : std::disjunction<std::is_same<T, Ts>...>
 {};
 
 template <typename ...Ts>
 struct any_in{};
 template <typename ...TypesToCheck, typename ...TypesToCheckAgainst>
-struct any_in<Collection<TypesToCheck...>, Collection<TypesToCheckAgainst...>> 
-    : std::disjunction<is_in<TypesToCheck, Collection<TypesToCheckAgainst...>>...>
+struct any_in<TypeCollection<TypesToCheck...>, TypeCollection<TypesToCheckAgainst...>> 
+    : std::disjunction<is_in<TypesToCheck, TypeCollection<TypesToCheckAgainst...>>...>
 {};
 
 template <typename ...Ts>
 struct all_in{};
 template <typename ...TypesToCheck, typename ...TypesToCheckAgainst>
-struct all_in<Collection<TypesToCheck...>, Collection<TypesToCheckAgainst...>> 
-    : std::conjunction<is_in<TypesToCheck, Collection<TypesToCheckAgainst...>>...>
+struct all_in<TypeCollection<TypesToCheck...>, TypeCollection<TypesToCheckAgainst...>> 
+    : std::conjunction<is_in<TypesToCheck, TypeCollection<TypesToCheckAgainst...>>...>
 {};
 
 #endif

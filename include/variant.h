@@ -41,7 +41,7 @@ struct _holds_any_alternative_helper<std::variant<VariantTypes...>, std::variant
     using Variant = std::variant<VariantTypes...>;
 
     static bool _holds(Variant& var){
-        static_assert(all_in<Collection<Alternatives...>, Collection<VariantTypes...>>::value,
+        static_assert(all_in<TypeCollection<Alternatives...>, TypeCollection<VariantTypes...>>::value,
                       "Can't check if a variant holds an alternative if that alternative is not one of the alternatives defined for the variant, or if the variant is defined to have multiple alternatives of the same type.");
 
         return (holds_alternative<Alternatives>(var) | ...);
