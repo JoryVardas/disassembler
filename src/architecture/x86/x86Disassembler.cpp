@@ -161,52 +161,52 @@ std::vector<std::shared_ptr<InstructionParameter>> X86Disassembler::decodeInstru
         }();
 
         auto removeRegisterOrMemoryCandidates = [&modrm](const X86InstructionParameterPrototype& candidateParameter){
-                if(getModrmMod(modrm) == std::byte(3) && std::holds_alternative<std::shared_ptr<X86InstructionAddressParameterPrototype>>(candidateParameter)){
+                if(getModrmMod(modrm) == std::byte(3) && holds_any_alternative<X86InstructionAddressParameterPrototype_t>(candidateParameter)){
                         return true;
                 }
-                else if(getModrmMod(modrm) != std::byte(3) && std::holds_alternative<std::shared_ptr<X86InstructionRegisterParameterPrototype>>(candidateParameter)){
+                else if(getModrmMod(modrm) != std::byte(3) && holds_any_alternative<X86InstructionRegisterParameterPrototype_t>(candidateParameter)){
                         return true;
                 }
                 return false;
         };
         auto removeRegisterSizes = [&currentParameterMode](const X86InstructionParameterPrototype& candidateParameter){
-                if (!std::holds_alternative<std::shared_ptr<X86InstructionRegisterParameterPrototype>>(candidateParameter)) return false;
+                if (!holds_any_alternative<X86InstructionRegisterParameterPrototype_t>(candidateParameter)) return false;
 
                 switch (currentParameterMode){
                         case ParameterMode::X16:
-                                return std::get<std::shared_ptr<X86InstructionRegisterParameterPrototype>>(candidateParameter)->size() != 16;
+                                return std::get<RegisterSize>(std::visit(x86InstructionRegisterParameterPrototypeGetSize, candidateParameter)) != 16;
                         case ParameterMode::X32:
-                                return std::get<std::shared_ptr<X86InstructionRegisterParameterPrototype>>(candidateParameter)->size() != 32;
+                                return std::get<RegisterSize>(std::visit(x86InstructionRegisterParameterPrototypeGetSize, candidateParameter)) != 32;
                         case ParameterMode::X64:
-                                return std::get<std::shared_ptr<X86InstructionRegisterParameterPrototype>>(candidateParameter)->size() != 64;
+                                return std::get<RegisterSize>(std::visit(x86InstructionRegisterParameterPrototypeGetSize, candidateParameter)) != 64;
                 }
                 
                 return false;
         };
         auto removeAddressSizes = [&currentParameterMode](const X86InstructionParameterPrototype& candidateParameter){
-                if (!std::holds_alternative<std::shared_ptr<X86InstructionAddressParameterPrototype>>(candidateParameter)) return false;
+                if (!holds_any_alternative<X86InstructionAddressParameterPrototype_t>(candidateParameter)) return false;
 
                 switch (currentParameterMode){
                         case ParameterMode::X16:
-                                return std::get<std::shared_ptr<X86InstructionAddressParameterPrototype>>(candidateParameter)->size() != X86InstructionAddressParameterSize::WORD_PTR;
+                                return std::get<X86InstructionAddressParameterSize>(std::visit(x86InstructionAddressParameterPrototypeGetSize, candidateParameter)) != X86InstructionAddressParameterSize::WORD_PTR;
                         case ParameterMode::X32:
-                                return std::get<std::shared_ptr<X86InstructionAddressParameterPrototype>>(candidateParameter)->size() != X86InstructionAddressParameterSize::DWORD_PTR;
+                                return std::get<X86InstructionAddressParameterSize>(std::visit(x86InstructionAddressParameterPrototypeGetSize, candidateParameter)) != X86InstructionAddressParameterSize::DWORD_PTR;
                         case ParameterMode::X64:
-                                return std::get<std::shared_ptr<X86InstructionAddressParameterPrototype>>(candidateParameter)->size() != X86InstructionAddressParameterSize::QWORD_PTR;
+                                return std::get<X86InstructionAddressParameterSize>(std::visit(x86InstructionAddressParameterPrototypeGetSize, candidateParameter)) != X86InstructionAddressParameterSize::QWORD_PTR;
                 }
                 
                 return false;
         };
         auto removeImmediateSizes = [&currentParameterMode](const X86InstructionParameterPrototype& candidateParameter){
-                if (!std::holds_alternative<std::shared_ptr<X86InstructionImmediateParameterPrototype>>(candidateParameter)) return false;
+                if (!holds_any_alternative<X86InstructionImmediateParameterPrototype_t>(candidateParameter)) return false;
 
                 switch (currentParameterMode){
                         case ParameterMode::X16:
-                                return std::get<std::shared_ptr<X86InstructionImmediateParameterPrototype>>(candidateParameter)->size() != 16;
+                                return std::get<InstructionImmediateSize>(std::visit(x86InstructionImmediateParameterPrototypeGetSize, candidateParameter)) != 16;
                         case ParameterMode::X32:
-                                return std::get<std::shared_ptr<X86InstructionImmediateParameterPrototype>>(candidateParameter)->size() != 32;
+                                return std::get<InstructionImmediateSize>(std::visit(x86InstructionImmediateParameterPrototypeGetSize, candidateParameter)) != 32;
                         case ParameterMode::X64:
-                                return std::get<std::shared_ptr<X86InstructionImmediateParameterPrototype>>(candidateParameter)->size() != 64;
+                                return std::get<InstructionImmediateSize>(std::visit(x86InstructionImmediateParameterPrototypeGetSize, candidateParameter)) != 64;
                 }
                 
                 return false;
@@ -251,18 +251,18 @@ std::vector<std::shared_ptr<InstructionParameter>> X86Disassembler::decodeInstru
 
                 auto prototype = prototypeList.at(0);
                 
-                if(auto registerPrototype = std::get_if<std::shared_ptr<X86InstructionRegisterParameterPrototype>>(&prototype)){
+                if(holds_any_alternative<X86InstructionRegisterParameterPrototype_t>(prototype)){
                         if (parameterLocation == X86InstructionParameterLocation::MODRM_REG){
-                                specifiedParameterList.emplace_back(std::make_shared<X86InstructionRegisterParameter>((*registerPrototype)->specify(X86InstructionRegisterParameterGroups.at(static_cast<std::size_t>(getModrmReg(modrm))))));
+                                specifiedParameterList.emplace_back(std::visit(std::bind(x86InstructionRegisterParameterPrototypeSpecify{}, std::placeholders::_1, X86InstructionRegisterParameterGroups.at(static_cast<std::size_t>(getModrmReg(modrm)))), prototype));
                         }
                         else if(parameterLocation == X86InstructionParameterLocation::MODRM_RM){
-                                specifiedParameterList.emplace_back(std::make_shared<X86InstructionRegisterParameter>((*registerPrototype)->specify(X86InstructionRegisterParameterGroups.at(static_cast<std::size_t>(getModrmRM(modrm))))));
+                                specifiedParameterList.emplace_back(std::visit(std::bind(x86InstructionRegisterParameterPrototypeSpecify{}, std::placeholders::_1, X86InstructionRegisterParameterGroups.at(static_cast<std::size_t>(getModrmRM(modrm)))), prototype));
                         }
                         else if(parameterLocation == X86InstructionParameterLocation::IMPLIED){
-                                specifiedParameterList.emplace_back(std::make_shared<X86InstructionRegisterParameter>((*registerPrototype)->specify(X86InstructionRegisterParameterGroups.at(0))));
+                                specifiedParameterList.emplace_back(std::visit(std::bind(x86InstructionRegisterParameterPrototypeSpecify{}, std::placeholders::_1, X86InstructionRegisterParameterGroups.at(0)), prototype));
                         }
                 }
-                else if(auto addressPrototype = std::get_if<std::shared_ptr<X86InstructionAddressParameterPrototype>>(&prototype)){
+                else if(holds_any_alternative<X86InstructionAddressParameterPrototype_t>(prototype)){
                         uint64_t displacementValue = 0;
                         if (_disassemblerEnvirionment._endianness==X86Environment::X86Endianness::BIG_ENDIAN){
                                 switch(getDisplacementSizeRequiredByModrm(modrm, sib, currentAddressMode) / 8){
@@ -296,12 +296,12 @@ std::vector<std::shared_ptr<InstructionParameter>> X86Disassembler::decodeInstru
                                                 break;
                                 }
                         }
-                        specifiedParameterList.emplace_back(std::make_shared<X86InstructionAddressParameter>((*addressPrototype)->specify(currentAddressMode, modrm, sib, displacementValue)));
+                        specifiedParameterList.emplace_back(std::visit(std::bind(x86InstructionAddressParameterPrototypeSpecify{}, std::placeholders::_1, currentAddressMode, modrm, sib, displacementValue), prototype));
                 }
-                else if (auto immediatePrototype = std::get_if<std::shared_ptr<X86InstructionImmediateParameterPrototype>>(&prototype)){
+                else if (holds_any_alternative<X86InstructionImmediateParameterPrototype_t>(prototype)){
                         uint64_t immediateValue = 0;
                         if (_disassemblerEnvirionment._endianness==X86Environment::X86Endianness::BIG_ENDIAN){
-                                switch((*immediatePrototype)->size() / 8){
+                                switch(std::get<InstructionImmediateSize>(std::visit(x86InstructionImmediateParameterPrototypeGetSize, prototype)) / 8){
                                         case 4:
                                                 immediateValue += static_cast<uint64_t>(*(bytesToDecode++));
                                                 immediateValue *= 256;
@@ -316,7 +316,7 @@ std::vector<std::shared_ptr<InstructionParameter>> X86Disassembler::decodeInstru
                                 }
                         }
                         else if (_disassemblerEnvirionment._endianness==X86Environment::X86Endianness::LITTLE_ENDIAN){
-                                switch((*immediatePrototype)->size() / 8){
+                                switch(std::get<InstructionImmediateSize>(std::visit(x86InstructionImmediateParameterPrototypeGetSize, prototype)) / 8){
                                         case 4:
                                                 immediateValue += static_cast<uint64_t>(*(bytesToDecode++));
                                                 immediateValue += static_cast<uint64_t>(*(bytesToDecode++)) * 256;
@@ -333,7 +333,7 @@ std::vector<std::shared_ptr<InstructionParameter>> X86Disassembler::decodeInstru
                                 }
                         }
 
-                        specifiedParameterList.emplace_back(std::make_shared<X86InstructionImmediateParameter>((*immediatePrototype)->specify(immediateValue)));
+                        specifiedParameterList.emplace_back(std::visit(std::bind(x86InstructionImmediateParameterPrototypeSpecify{}, std::placeholders::_1, immediateValue), prototype));
                 }
         }
 

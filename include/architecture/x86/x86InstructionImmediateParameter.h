@@ -3,6 +3,8 @@
 
 #include <instructionParameter.h>
 
+typedef uint8_t InstructionImmediateSize;
+
 struct X86InstructionImmediateParameter : public InstructionParameter {
 public:
     X86InstructionImmediateParameter();

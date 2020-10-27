@@ -2,11 +2,14 @@
 #define ARCHITECTURE_X86_X86INSTRUCTIONADDRESSPARAMETERPROTOTYPE_H
 
 #include <algorithm>
+#include <memory>
 
 #include "x86InstructionAddressParameter.h"
 #include "x86InstructionRegisterParameterList.h"
 #include "x86Modrm.h"
 #include "x86Environment.h"
+#include "variant.h"
+#include "x86InstructionParameterPrototypeTypes.h"
 
 struct X86InstructionAddressParameterPrototype {
 public:
@@ -156,6 +159,27 @@ public:
         else {
             return X86InstructionAddressParameter(Size, displacement);
         }
+    }
+};
+
+using X86InstructionAddressParameterPrototype_t = std::variant<X86InstructionAddressParameterPrototypeSpecification<X86InstructionAddressParameterSize::BYTE_PTR>,
+                                                               X86InstructionAddressParameterPrototypeSpecification<X86InstructionAddressParameterSize::WORD_PTR>,
+                                                               X86InstructionAddressParameterPrototypeSpecification<X86InstructionAddressParameterSize::DWORD_PTR>,
+                                                               X86InstructionAddressParameterPrototypeSpecification<X86InstructionAddressParameterSize::QWORD_PTR>>;
+
+const auto x86InstructionAddressParameterPrototypeGetSize = [](const auto & addressPrototype)->ParameterSize {
+    return addressPrototype.size();
+};
+struct x86InstructionAddressParameterPrototypeSpecify{
+    
+    template<X86InstructionAddressParameterSize T>
+    std::shared_ptr<InstructionParameter> operator() (const X86InstructionAddressParameterPrototypeSpecification<T>& ref, const X86Environment::X86AddressMode addressMode, const modrm_t modrm, const sib_t sib, const X86InstructionAddressDisplacement displacement) const {
+        return std::make_shared<X86InstructionAddressParameter>(ref.specify(addressMode, modrm, sib, displacement));
+    }
+    
+    template <typename T>
+    std::shared_ptr<InstructionParameter> operator() (const T&, const X86Environment::X86AddressMode, const modrm_t, const sib_t, const X86InstructionAddressDisplacement) const {
+        return nullptr;
     }
 };
 

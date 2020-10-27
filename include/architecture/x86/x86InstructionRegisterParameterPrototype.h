@@ -2,9 +2,13 @@
 #define ARCHITECTURE_X86_X86INSTRUCTIONREGISTERPARAMETERPROTOTYPE_H
 
 #include <algorithm>
+#include <memory>
+#include "variant.h"
 
 #include "x86InstructionRegisterParameter.h"
 #include "x86InstructionRegisterParameterGroups.h"
+
+#include "x86InstructionParameterPrototypeTypes.h"
 
 struct X86InstructionRegisterParameterPrototype {
 public:
@@ -47,6 +51,28 @@ public:
     X86InstructionSingleRegisterParameterPrototypeSpecification& operator=(X86InstructionSingleRegisterParameterPrototypeSpecification&&);
 private:
     std::string _registerName;
+};
+
+using X86InstructionRegisterParameterPrototype_t = std::variant<X86InstructionSingleRegisterParameterPrototypeSpecification,
+                                                              X86InstructionRegisterParameterPrototypeSpecification<8>,
+                                                              X86InstructionRegisterParameterPrototypeSpecification<16>,
+                                                              X86InstructionRegisterParameterPrototypeSpecification<32>>;
+
+const auto x86InstructionRegisterParameterPrototypeGetSize = [](const auto & registerPrototype)->ParameterSize {
+    return registerPrototype.size();
+};
+struct x86InstructionRegisterParameterPrototypeSpecify{
+    
+    template<RegisterSize T>
+    std::shared_ptr<InstructionParameter> operator() (const X86InstructionRegisterParameterPrototypeSpecification<T>& ref, const X86InstructionRegisterParameterGroup& registerGroup) const {
+        return std::make_shared<X86InstructionRegisterParameter>(ref.specify(registerGroup));
+    }
+    std::shared_ptr<InstructionParameter> operator() (const X86InstructionSingleRegisterParameterPrototypeSpecification& ref, const X86InstructionRegisterParameterGroup& registerGroup) const;
+    
+    template <typename T>
+    std::shared_ptr<InstructionParameter> operator() (const T&, const X86InstructionRegisterParameterGroup&) const {
+        return nullptr;
+    }
 };
 
 #endif

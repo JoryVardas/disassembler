@@ -11,25 +11,25 @@
 #define PREFIX_66 X86InstructionPrefix::OPERAND_SIZE_OVERRIDE
 #define PREFIX_67 X86InstructionPrefix::ADDRESS_SIZE_OVERRIDE
 
-#define imm8 std::make_shared<X86InstructionImmediateParameterPrototypeSpecification<8>>()
-#define imm16 std::make_shared<X86InstructionImmediateParameterPrototypeSpecification<16>>()
-#define imm32 std::make_shared<X86InstructionImmediateParameterPrototypeSpecification<32>>()
-#define r8 std::make_shared<X86InstructionRegisterParameterPrototypeSpecification<8>>()
-#define r16 std::make_shared<X86InstructionRegisterParameterPrototypeSpecification<16>>()
-#define r32 std::make_shared<X86InstructionRegisterParameterPrototypeSpecification<32>>()
+#define imm8 X86InstructionImmediateParameterPrototypeSpecification<8>()
+#define imm16 X86InstructionImmediateParameterPrototypeSpecification<16>()
+#define imm32 X86InstructionImmediateParameterPrototypeSpecification<32>()
+#define r8 X86InstructionRegisterParameterPrototypeSpecification<8>()
+#define r16 X86InstructionRegisterParameterPrototypeSpecification<16>()
+#define r32 X86InstructionRegisterParameterPrototypeSpecification<32>()
 #define r64
-#define m8 std::make_shared<X86InstructionAddressParameterPrototypeSpecification<X86InstructionAddressParameterSize::BYTE_PTR>>()
-#define m16 std::make_shared<X86InstructionAddressParameterPrototypeSpecification<X86InstructionAddressParameterSize::WORD_PTR>>()
-#define m32 std::make_shared<X86InstructionAddressParameterPrototypeSpecification<X86InstructionAddressParameterSize::DWORD_PTR>>()
+#define m8 X86InstructionAddressParameterPrototypeSpecification<X86InstructionAddressParameterSize::BYTE_PTR>()
+#define m16 X86InstructionAddressParameterPrototypeSpecification<X86InstructionAddressParameterSize::WORD_PTR>()
+#define m32 X86InstructionAddressParameterPrototypeSpecification<X86InstructionAddressParameterSize::DWORD_PTR>()
 #define m64
 #define rm8 r8, m8
 #define rm16 r16, m16
 #define rm32 r32, m32
 #define rm64
 
-#define AL std::make_shared<X86InstructionSingleRegisterParameterPrototypeSpecification>("AL")
-#define AX std::make_shared<X86InstructionSingleRegisterParameterPrototypeSpecification>("AX")
-#define EAX std::make_shared<X86InstructionSingleRegisterParameterPrototypeSpecification>("EAX")
+#define AL X86InstructionSingleRegisterParameterPrototypeSpecification("AL")
+#define AX X86InstructionSingleRegisterParameterPrototypeSpecification("AX")
+#define EAX X86InstructionSingleRegisterParameterPrototypeSpecification("EAX")
 #define RAX /*std::make_shared<X86InstructionSingleRegisterParameterPrototypeSpecification>("RAX")*/
 
 #define MODE X86Environment::X86InstructionMode

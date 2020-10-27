@@ -52,11 +52,15 @@ std::vector<std::vector<A>> cartesian_product(const std::vector<A>& vecA, const 
 
 template <typename T>
 uint16_t getParameterPrototypeSize(const T& proto){
-    if (auto registerParameterPrototype = std::get_if<std::shared_ptr<X86InstructionRegisterParameterPrototype>>(&proto)){
-        return (*registerParameterPrototype)->size();
+    if (holds_any_alternative<X86InstructionRegisterParameterPrototype_t>(proto)
+        /*auto registerParameterPrototype = std::get_if<std::shared_ptr<X86InstructionRegisterParameterPrototype>>(&proto)*/){
+        //return (*registerParameterPrototype)->size();
+        return std::get<RegisterSize>(std::visit(x86InstructionRegisterParameterPrototypeGetSize, proto));
     }
-    else if(auto addressParameterPrototype = std::get_if<std::shared_ptr<X86InstructionAddressParameterPrototype>>(&proto)){
-        switch((*addressParameterPrototype)->size()){
+    else if(holds_any_alternative<X86InstructionAddressParameterPrototype_t>(proto)
+    /*auto addressParameterPrototype = std::get_if<std::shared_ptr<X86InstructionAddressParameterPrototype>>(&proto)*/){
+        switch(std::get<X86InstructionAddressParameterSize>(std::visit(x86InstructionAddressParameterPrototypeGetSize, proto))
+            /*(*addressParameterPrototype)->size()*/){
             case X86InstructionAddressParameterSize::BYTE_PTR:
                 return static_cast<uint16_t>(8);
             case X86InstructionAddressParameterSize::WORD_PTR:
@@ -74,8 +78,10 @@ uint16_t getParameterPrototypeSize(const T& proto){
         }
         return 0;
     }
-    else if (auto immediateParameterPrototype = std::get_if<std::shared_ptr<X86InstructionImmediateParameterPrototype>>(&proto)){
-        return static_cast<uint16_t>((*immediateParameterPrototype)->size()) /** 8*/;
+    else if (holds_any_alternative<X86InstructionImmediateParameterPrototype_t>(proto)
+    /*auto immediateParameterPrototype = std::get_if<std::shared_ptr<X86InstructionImmediateParameterPrototype>>(&proto)*/){
+        //return static_cast<uint16_t>((*immediateParameterPrototype)->size()) /** 8*/;
+        return static_cast<uint16_t>(std::get<InstructionImmediateSize>(std::visit(x86InstructionImmediateParameterPrototypeGetSize, proto)));
     }
 
     else{
@@ -83,10 +89,10 @@ uint16_t getParameterPrototypeSize(const T& proto){
     }
 }
 
-std::string generateRegisterParameterTestAssembly(const std::shared_ptr<X86InstructionRegisterParameterPrototype> parameterPrototype){
+/*std::string generateRegisterParameterTestAssembly(const std::shared_ptr<X86InstructionRegisterParameterPrototype> parameterPrototype){
     return parameterPrototype->specify(X86InstructionRegisterParameterGroups.at(static_cast<std::size_t>(distributionOver0to7(random)))).toString();
-}
-std::string generateAddressParameterTestAssembly(const X86Environment& targetEnvironment, const std::shared_ptr<X86InstructionAddressParameterPrototype> parameterPrototype){
+}*/
+/*std::string generateAddressParameterTestAssembly(const X86Environment& targetEnvironment, const std::shared_ptr<X86InstructionAddressParameterPrototype> parameterPrototype){
     const modrm_t generatedModrm = [](){
             while(true){
                 modrm_t potentialModrm = static_cast<modrm_t>(distributionOverByte(random));
@@ -120,8 +126,8 @@ std::string generateAddressParameterTestAssembly(const X86Environment& targetEnv
         }();
 
         return parameterPrototype->specify(targetEnvironment._defaultAdressMode, generatedModrm, generatedSib, generatedDisplacement).toString();
-}
-std::string generateImmediateParameterTestAssembly(const std::shared_ptr<X86InstructionImmediateParameterPrototype> parameterPrototype){
+}*/
+/*std::string generateImmediateParameterTestAssembly(const std::shared_ptr<X86InstructionImmediateParameterPrototype> parameterPrototype){
     uint64_t generatedImmediate = static_cast<uint64_t>(distributionOverByte(random));
         switch(parameterPrototype->size() / 8){
             case 1:
@@ -137,10 +143,79 @@ std::string generateImmediateParameterTestAssembly(const std::shared_ptr<X86Inst
                 break;
         }
         return parameterPrototype->specify(generatedImmediate).toString();
-}
+}*/
 
+struct GenerateParameterTestAssemblyVisitor{
+    template <RegisterSize T>
+    std::string operator() (const X86InstructionRegisterParameterPrototypeSpecification<T>& parameterPrototype, const X86Environment&) const{
+        return parameterPrototype.specify(X86InstructionRegisterParameterGroups.at(static_cast<std::size_t>(distributionOver0to7(random)))).toString();
+    };
+    std::string operator() (const X86InstructionSingleRegisterParameterPrototypeSpecification& parameterPrototype, const X86Environment&) const{
+        return parameterPrototype.specify(X86InstructionRegisterParameterGroups.at(0)).toString();
+    };
+    template <X86InstructionAddressParameterSize T>
+    std::string operator() (const X86InstructionAddressParameterPrototypeSpecification<T>& parameterPrototype, const X86Environment& targetEnvironment) const {
+        const modrm_t generatedModrm = [](){
+            while(true){
+                modrm_t potentialModrm = static_cast<modrm_t>(distributionOverByte(random));
+                if (getModrmMod(potentialModrm) != std::byte(3)) return potentialModrm;
+            }
+        }();
+        const sib_t generatedSib = [&targetEnvironment, &generatedModrm](){
+            if(targetEnvironment._defaultAdressMode == X86Environment::X86AddressMode::X16) return sib_t(0);
+            if(getModrmRM(generatedModrm) != std::byte(4)) return sib_t(0);
+            
+            while(true){
+                sib_t potentialSib = static_cast<sib_t>(distributionOverByte(random));
+                if(getSibIndex(potentialSib) != std::byte(4)) return potentialSib;
+            }
+        }();
+        const uint64_t generatedDisplacement = [&generatedModrm, &targetEnvironment](){
+            if(getModrmMod(generatedModrm) == std::byte(1)){
+                return static_cast<uint64_t>(distributionOverByte(random));
+            }
+            else if(getModrmMod(generatedModrm) == std::byte(0) || getModrmMod(generatedModrm) == std::byte(2)){
+                switch(targetEnvironment._defaultAdressMode){
+                    case X86Environment::X86AddressMode::X16:
+                        return static_cast<uint64_t>(distributionOverWord(random));
+                    case X86Environment::X86AddressMode::X32:
+                        return static_cast<uint64_t>(distributionOverDWord(random));
+                    case X86Environment::X86AddressMode::X64:
+                        return static_cast<uint64_t>(distributionOverQWord(random));
+                }
+            }
+            return static_cast<uint64_t>(0);
+        }();
+
+        return parameterPrototype.specify(targetEnvironment._defaultAdressMode, generatedModrm, generatedSib, generatedDisplacement).toString();
+    };
+
+    template <InstructionImmediateSize T>
+    std::string operator() (const X86InstructionImmediateParameterPrototypeSpecification<T>& parameterPrototype, const X86Environment&) const {
+        uint64_t generatedImmediate = static_cast<uint64_t>(distributionOverByte(random));
+        switch(parameterPrototype.size() / 8){
+            case 1:
+                break;
+            case 2:
+                generatedImmediate = static_cast<uint64_t>(distributionOverWord(random));
+                break;
+            case 4:
+                generatedImmediate = static_cast<uint64_t>(distributionOverDWord(random));
+                break;
+            case 8:
+                generatedImmediate = static_cast<uint64_t>(distributionOverQWord(random));
+                break;
+        }
+        return parameterPrototype.specify(generatedImmediate).toString();
+    };
+
+    template <typename T>
+    std::string operator()(const T&, const X86Environment&) const {
+        return "UNKNOWN PARAMETER PROTOTYPE";
+    }
+};
 std::string generateParameterTestAssembly(const X86Environment& targetEnvironment, const X86InstructionParameterPrototype& parameterPrototype){
-    if (auto registerParameterPrototype = std::get_if<std::shared_ptr<X86InstructionRegisterParameterPrototype>>(&parameterPrototype)){
+    /*if (auto registerParameterPrototype = std::get_if<std::shared_ptr<X86InstructionRegisterParameterPrototype>>(&parameterPrototype)){
         return generateRegisterParameterTestAssembly(*registerParameterPrototype);
     }
     else if(auto addressParameterPrototype = std::get_if<std::shared_ptr<X86InstructionAddressParameterPrototype>>(&parameterPrototype)){
@@ -151,6 +226,9 @@ std::string generateParameterTestAssembly(const X86Environment& targetEnvironmen
     }
 
     return "UNKOWN PARAMETER PROTOTYPE";
+    */
+   
+   return std::visit(std::bind(GenerateParameterTestAssemblyVisitor{}, std::placeholders::_1, targetEnvironment), parameterPrototype);
 };
 
 std::string generateInstructionTestAssembly(const X86Environment& targetEnvironment, const X86InstructionPrototype& instruction){
@@ -189,8 +267,8 @@ std::string generateInstructionTestAssembly(const X86Environment& targetEnvironm
             uint16_t firstParamSize = getParameterPrototypeSize(group.at(0));
             return std::count_if(++std::begin(group), std::end(group), [&firstParamSize](const auto& param){
                 uint16_t paramSize = getParameterPrototypeSize(param);
-                if (std::holds_alternative<std::shared_ptr<X86InstructionRegisterParameterPrototype>>(param)
-                    || std::holds_alternative<std::shared_ptr<X86InstructionAddressParameterPrototype>>(param)){
+                if (holds_any_alternative<X86InstructionRegisterParameterPrototype_t>(param)
+                    || holds_any_alternative<X86InstructionAddressParameterPrototype_t>(param)){
                     return paramSize != firstParamSize;
                 }
                 else return paramSize > firstParamSize;

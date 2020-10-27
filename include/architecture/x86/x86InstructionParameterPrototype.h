@@ -8,8 +8,10 @@
 #include "x86InstructionRegisterParameterPrototype.h"
 #include "x86InstructionAddressParameterPrototype.h"
 
-using X86InstructionParameterPrototype = std::variant<std::shared_ptr<X86InstructionImmediateParameterPrototype>,
-                                                      std::shared_ptr<X86InstructionRegisterParameterPrototype>,
-                                                      std::shared_ptr<X86InstructionAddressParameterPrototype>>;
+#include "variant.h"
+
+using X86InstructionParameterPrototype = variant_join<X86InstructionRegisterParameterPrototype_t,
+                                                      X86InstructionAddressParameterPrototype_t,
+                                                      X86InstructionImmediateParameterPrototype_t>;
 
 #endif
