@@ -46,7 +46,7 @@ constexpr uint8_t getDisplacementSizeRequiredByModrm(modrm_t modrm, sib_t sib, X
         case X86Environment::X86AddressMode::X16:
             switch (static_cast<uint8_t>(getModrmMod(modrm))){
                 case 0:
-                    return getModrmReg(modrm) == std::byte(6) ? uint8_t(16) : uint8_t(0);
+                    return getModrmRM(modrm) == std::byte(6) ? uint8_t(16) : uint8_t(0);
                 case 1:
                     return uint8_t(8);
                 case 2:
@@ -62,7 +62,7 @@ constexpr uint8_t getDisplacementSizeRequiredByModrm(modrm_t modrm, sib_t sib, X
                     if (getModrmRM(modrm) == std::byte(4) && getSibBase(sib) == std::byte(5)){
                         return uint8_t(32);
                     }
-                    return getModrmReg(modrm) == std::byte(5) ? uint8_t(32) : uint8_t(0);
+                    return getModrmRM(modrm) == std::byte(5) ? uint8_t(32) : uint8_t(0);
                 case 1:
                     return uint8_t(8);
                 case 2:
