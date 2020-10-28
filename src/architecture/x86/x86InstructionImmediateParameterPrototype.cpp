@@ -1,9 +1,1 @@
 #include <architecture\x86\x86InstructionImmediateParameterPrototype.h>
-
-X86InstructionImmediateParameterPrototype::X86InstructionImmediateParameterPrototype() = default;
-X86InstructionImmediateParameterPrototype::X86InstructionImmediateParameterPrototype(const X86InstructionImmediateParameterPrototype&) = default;
-X86InstructionImmediateParameterPrototype::X86InstructionImmediateParameterPrototype(X86InstructionImmediateParameterPrototype&&) = default;
-X86InstructionImmediateParameterPrototype::~X86InstructionImmediateParameterPrototype() = default;
-
-X86InstructionImmediateParameterPrototype& X86InstructionImmediateParameterPrototype::operator=(const X86InstructionImmediateParameterPrototype&) = default;
-X86InstructionImmediateParameterPrototype& X86InstructionImmediateParameterPrototype::operator=(X86InstructionImmediateParameterPrototype&&) = default;
