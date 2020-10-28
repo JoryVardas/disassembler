@@ -10,33 +10,19 @@
 
 #include "x86InstructionParameterPrototypeTypes.h"
 
-struct X86InstructionRegisterParameterPrototype {
-public:
-    X86InstructionRegisterParameterPrototype();
-    X86InstructionRegisterParameterPrototype(const X86InstructionRegisterParameterPrototype&);
-    X86InstructionRegisterParameterPrototype(X86InstructionRegisterParameterPrototype&&);
-    virtual ~X86InstructionRegisterParameterPrototype();
-
-    virtual RegisterSize size() const = 0;
-    virtual X86InstructionRegisterParameter specify(const X86InstructionRegisterParameterGroup&) const = 0;
-
-    X86InstructionRegisterParameterPrototype& operator=(const X86InstructionRegisterParameterPrototype&);
-    X86InstructionRegisterParameterPrototype& operator=(X86InstructionRegisterParameterPrototype&&);
-};
-
 template<RegisterSize Size>
-struct X86InstructionRegisterParameterPrototypeSpecification : public X86InstructionRegisterParameterPrototype {
+struct X86InstructionRegisterParameterPrototypeSpecification {
 public:
-    constexpr RegisterSize size() const override {return Size;};
+    constexpr RegisterSize size() const {return Size;};
 
-    constexpr X86InstructionRegisterParameter specify(const X86InstructionRegisterParameterGroup& registerGroup) const override {
+    constexpr X86InstructionRegisterParameter specify(const X86InstructionRegisterParameterGroup& registerGroup) const {
         return *(std::find_if(std::cbegin(registerGroup), std::cend(registerGroup), [](const X86InstructionRegisterParameter& currentRegisterParameter){
             return currentRegisterParameter.size() == Size;
         }));
     }
 };
 
-struct X86InstructionSingleRegisterParameterPrototypeSpecification : public X86InstructionRegisterParameterPrototype {
+struct X86InstructionSingleRegisterParameterPrototypeSpecification {
 public:
     X86InstructionSingleRegisterParameterPrototypeSpecification();
     X86InstructionSingleRegisterParameterPrototypeSpecification(const X86InstructionSingleRegisterParameterPrototypeSpecification&);
@@ -44,8 +30,8 @@ public:
     X86InstructionSingleRegisterParameterPrototypeSpecification(const std::string& registerName);
     ~X86InstructionSingleRegisterParameterPrototypeSpecification();
 
-    RegisterSize size() const override;
-    X86InstructionRegisterParameter specify(const X86InstructionRegisterParameterGroup& registerGroup) const override;
+    RegisterSize size() const;
+    X86InstructionRegisterParameter specify(const X86InstructionRegisterParameterGroup& registerGroup) const;
     
     X86InstructionSingleRegisterParameterPrototypeSpecification& operator=(const X86InstructionSingleRegisterParameterPrototypeSpecification&);
     X86InstructionSingleRegisterParameterPrototypeSpecification& operator=(X86InstructionSingleRegisterParameterPrototypeSpecification&&);
