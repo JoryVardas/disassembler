@@ -4,7 +4,7 @@
 #include <optional>
 #include <string>
 
-enum class X86InstructionPrefix {
+enum class X86InstructionRawPrefix {
         //group 4
         ADDRESS_SIZE_OVERRIDE = 0x67,
 
@@ -28,7 +28,7 @@ enum class X86InstructionPrefix {
         REP = 0xf3
 };
 
-std::optional<X86InstructionPrefix> decodeX86InstructionPrefix(const std::byte byteToDecode);
-std::string X86InstructionPrefixToString(const X86InstructionPrefix prefix, const bool useBranchHintsInsteadOfSegmentOverrides = false);
+std::optional<X86InstructionRawPrefix> decodeX86InstructionPrefix(const std::byte byteToDecode);
+std::string X86InstructionPrefixToString(const X86InstructionRawPrefix prefix, const bool useBranchHintsInsteadOfSegmentOverrides = false);
 
 #endif

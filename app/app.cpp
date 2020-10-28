@@ -17,7 +17,7 @@ int main(/*int argc, char* argv[]*/){
                         std::byte(0x81), std::byte(0x14), std::byte(0x41), std::byte(0x04), std::byte(0x00), std::byte(0x00), std::byte(0x00),
                         std::byte(0x81), std::byte(0x54), std::byte(0x41), std::byte(0x04), std::byte(0x04), std::byte(0x00), std::byte(0x00), std::byte(0x00),
                         std::byte(0xd5), std::byte(0x0a),
-                        std::byte(X86InstructionPrefix::LOCK), std::byte(0x37)
+                        std::byte(X86InstructionRawPrefix::LOCK), std::byte(0x37)
                 };
 
                 BidirectionalIterator<std::byte> byteStream ( std::begin(test)._Ptr, static_cast<const int64_t>(std::size(test)));
