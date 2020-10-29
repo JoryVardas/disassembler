@@ -84,8 +84,9 @@ std::string AddAssemblerOverrides(std::string str){
     //Prevent NASM and others from spliting memory addresses
     //  ie. by default [EAX*2 + 1] will be split into [EXA + EAX*1 + 1]
     auto openSquareBracket = str.find('[');
-    if (openSquareBracket != std::string::npos){
+    while (openSquareBracket != std::string::npos){
         str.insert(openSquareBracket+1, "NOSPLIT ");
+        openSquareBracket = str.find('[', openSquareBracket+1);
     }
 
     return str;
