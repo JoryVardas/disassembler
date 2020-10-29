@@ -91,6 +91,68 @@ const std::vector<X86InstructionRegisterParameter> X86SibDisplacementRegisterLis
     X86InstructionRegisterParameterList.at("EDI"),
 };
 
+const std::vector<X86InstructionRegisterParameterGroup> X86ModrmAddressBaseRegisterList {
+    {
+        REGISTER(BX),
+        REGISTER(EAX),
+    },
+    {
+        REGISTER(BX),
+        REGISTER(ECX),
+    },
+    {
+        REGISTER(BP),
+        REGISTER(EDX),
+    },
+    {
+        REGISTER(BP),
+        REGISTER(EBX),
+    },
+    {
+        REGISTER(SI),
+        {},
+    },
+    {
+        REGISTER(DI),
+        REGISTER(EBP),
+    },
+    {
+        REGISTER(BP),
+        REGISTER(ESI),
+    },
+    {
+        REGISTER(BX),
+        REGISTER(EDI),
+    },
+};
+
+const std::vector<X86InstructionRegisterParameterGroup> X86SibAddressBaseRegisterList {
+    {
+        REGISTER(EAX),
+    },
+    {
+        REGISTER(ECX),
+    },
+    {
+        REGISTER(EDX),
+    },
+    {
+        REGISTER(EBX),
+    },
+    {
+        {},
+    },
+    {
+        REGISTER(EBP),
+    },
+    {
+        REGISTER(ESI),
+    },
+    {
+        REGISTER(EDI),
+    },
+};
+
 #undef REGISTER
 
 #endif

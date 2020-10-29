@@ -22,67 +22,21 @@ public:
 
         const std::optional<X86InstructionRegisterParameter> baseRegister = [&addressMode, &modrm, &sib]() -> std::optional<X86InstructionRegisterParameter> {
             if(addressMode == X86Environment::X86AddressMode::X16){
-                switch(static_cast<uint8_t>(getModrmRM(modrm))){
-                    case 0:
-                    case 1:
-                        return X86InstructionRegisterParameterList.at("BX");
-                    case 2:
-                    case 3:
-                        return X86InstructionRegisterParameterList.at("BP");
-                    case 4:
-                        return X86InstructionRegisterParameterList.at("SI");
-                    case 5:
-                        return X86InstructionRegisterParameterList.at("DI");
-                    case 6:
-                        if(getModrmMod(modrm) == std::byte(0))
-                            return std::optional<X86InstructionRegisterParameter>();
-                        else
-                            return X86InstructionRegisterParameterList.at("BP");
-                    case 7:
-                        return X86InstructionRegisterParameterList.at("BX");
-                }
+                
+                if(getModrmMod(modrm) == std::byte(0) && getModrmRM(modrm) == std::byte(6))
+                    return std::optional<X86InstructionRegisterParameter>();
+                return X86ModrmAddressBaseRegisterList[static_cast<uint8_t>(getModrmRM(modrm))][0];
             }
             else {
-                switch(static_cast<uint8_t>(getModrmRM(modrm))){
-                    case 0:
-                        return X86InstructionRegisterParameterList.at("EAX");
-                    case 1:
-                        return X86InstructionRegisterParameterList.at("ECX");
-                    case 2:
-                        return X86InstructionRegisterParameterList.at("EDX");
-                    case 3:
-                        return X86InstructionRegisterParameterList.at("EBX");
-                    case 4:
-                        switch(static_cast<uint8_t>(getSibIndex(sib))){
-                            case 0:
-                                return X86InstructionRegisterParameterList.at("EAX");
-                            case 1:
-                                return X86InstructionRegisterParameterList.at("ECX");
-                            case 2:
-                                return X86InstructionRegisterParameterList.at("EDX");
-                            case 3:
-                                return X86InstructionRegisterParameterList.at("EBX");
-                            case 4:
-                                return std::optional<X86InstructionRegisterParameter>();
-                            case 5:
-                                return X86InstructionRegisterParameterList.at("EBP");
-                            case 6:
-                                return X86InstructionRegisterParameterList.at("ESI");
-                            case 7:
-                                return X86InstructionRegisterParameterList.at("EDI");
-                        }
-                    case 5:
-                        if (getModrmMod(modrm) == std::byte(0))
-                            return std::optional<X86InstructionRegisterParameter>();
-                        else
-                            return X86InstructionRegisterParameterList.at("EBP");
-                    case 6:
-                        return X86InstructionRegisterParameterList.at("ESI");
-                    case 7:
-                        return X86InstructionRegisterParameterList.at("EDI");
+                if (getModrmRM(modrm) == std::byte(4)){
+                    if (getSibIndex(sib) == std::byte(4))
+                        return std::optional<X86InstructionRegisterParameter>();
+                    return X86SibAddressBaseRegisterList[static_cast<uint8_t>(getSibIndex(sib))][0];
                 }
+                else if (getModrmMod(modrm) == std::byte(0) && getModrmRM(modrm) == std::byte(5))
+                    return std::optional<X86InstructionRegisterParameter>();
+                return X86ModrmAddressBaseRegisterList[static_cast<uint8_t>(getModrmRM(modrm))][1];
             }
-            return std::optional<X86InstructionRegisterParameter>();
         }();
 
         const std::optional<X86InstructionRegisterParameter> registerDisplacement = [&addressMode, &modrm, &sib]() -> std::optional<X86InstructionRegisterParameter> {
