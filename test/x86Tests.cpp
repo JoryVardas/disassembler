@@ -73,11 +73,32 @@ uint16_t getParameterPrototypeSize(const T& proto){
         }
         return 0;
     }
-    else if (holds_any_alternative<X86InstructionImmediateParameterPrototype_t>(proto)
+    else if (holds_any_alternative<X86InstructionImmediateParameterPrototype_t>(proto))
         return static_cast<uint16_t>(std::get<InstructionImmediateSize>(std::visit(x86InstructionImmediateParameterPrototypeGetSize, proto)));
     else{
         return 0;
     }
+}
+
+std::string AddAssemblerOverrides(std::string str){
+    //Prevent NASM and others from spliting memory addresses
+    //  ie. by default [EAX*2 + 1] will be split into [EXA + EAX*1 + 1]
+    auto openSquareBracket = str.find('[');
+    if (openSquareBracket != std::string::npos){
+        str.insert(openSquareBracket+1, "NOSPLIT ");
+    }
+
+    return str;
+}
+std::string RemoveAssemblerOverrides(std::string str){
+    //Prevent NASM and others from spliting memory addresses
+    //  ie. by default [EAX*2 + 1] will be split into [EXA + EAX*1 + 1]
+    auto nosplit = str.find("NOSPLIT ");
+    if (nosplit != std::string::npos){
+        str.erase(nosplit, 8);
+    }
+
+    return str;
 }
 
 struct GenerateParameterTestAssemblyVisitor{
@@ -230,7 +251,7 @@ void generateTestData(std::string assemblerLocation){
 
         for(const auto& instructionPrototype : X86InstructionPrototypeList){
             if(instructionPrototype.getValidMode() == targetEnvironment._defaultInstructionMode || instructionPrototype.getValidMode() == X86Environment::X86InstructionMode::BOTH){
-                assemblyFile << generateInstructionTestAssembly(targetEnvironment, instructionPrototype) << "\n";
+                assemblyFile << AddAssemblerOverrides(generateInstructionTestAssembly(targetEnvironment, instructionPrototype)) << "\n";
             }
         }
         assemblyFile.close();
@@ -295,7 +316,7 @@ void runTests(bool outputSuccess){
                 if(cur == '\n') break;
                 line << cur;
             }
-            return line.str();
+            return RemoveAssemblerOverrides(line.str());
         };
 
         X86Environment targetEnvironment;
