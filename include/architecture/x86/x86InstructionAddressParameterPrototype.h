@@ -110,17 +110,14 @@ using X86InstructionAddressParameterPrototype_t = std::variant<X86InstructionAdd
 const auto x86InstructionAddressParameterPrototypeGetSize = [](const auto & addressPrototype)->ParameterSize {
     return addressPrototype.size();
 };
-struct x86InstructionAddressParameterPrototypeSpecify{
+auto x86InstructionAddressParameterPrototypeSpecify = make_visitor(
     
-    template<X86InstructionAddressParameterSize T>
-    std::shared_ptr<InstructionParameter> operator() (const X86InstructionAddressParameterPrototypeSpecification<T>& ref, const X86Environment::X86AddressMode addressMode, const modrm_t modrm, const sib_t sib, const X86InstructionAddressDisplacement displacement) const {
+    []<X86InstructionAddressParameterSize T>(const X86InstructionAddressParameterPrototypeSpecification<T>& ref, const X86Environment::X86AddressMode addressMode, const modrm_t modrm, const sib_t sib, const X86InstructionAddressDisplacement displacement) ->std::shared_ptr<InstructionParameter>{
         return std::make_shared<X86InstructionAddressParameter>(ref.specify(addressMode, modrm, sib, displacement));
-    }
-    
-    template <typename T>
-    std::shared_ptr<InstructionParameter> operator() (const T&, const X86Environment::X86AddressMode, const modrm_t, const sib_t, const X86InstructionAddressDisplacement) const {
+    },
+    [](const auto&, const X86Environment::X86AddressMode, const modrm_t, const sib_t, const X86InstructionAddressDisplacement) -> std::shared_ptr<InstructionParameter>{
         return nullptr;
     }
-};
+);
 
 #endif

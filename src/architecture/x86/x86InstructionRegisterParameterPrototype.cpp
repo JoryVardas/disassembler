@@ -16,7 +16,3 @@ X86InstructionRegisterParameter X86InstructionSingleRegisterParameterPrototypeSp
     
 X86InstructionSingleRegisterParameterPrototypeSpecification& X86InstructionSingleRegisterParameterPrototypeSpecification::operator=(const X86InstructionSingleRegisterParameterPrototypeSpecification&) = default;
 X86InstructionSingleRegisterParameterPrototypeSpecification& X86InstructionSingleRegisterParameterPrototypeSpecification::operator=(X86InstructionSingleRegisterParameterPrototypeSpecification&&) = default;
-
-std::shared_ptr<InstructionParameter> x86InstructionRegisterParameterPrototypeSpecify::operator() (const X86InstructionSingleRegisterParameterPrototypeSpecification& ref, const X86InstructionRegisterParameterGroup& registerGroup) const {
-    return std::make_shared<X86InstructionRegisterParameter>(ref.specify(registerGroup));
-}

@@ -50,4 +50,30 @@ template<typename ...Alternatives, typename Variant>
 bool holds_any_alternative(Variant& var){
     return _holds_any_alternative_helper<Variant, std::remove_const_t<Variant>, variant_join<Alternatives...>>::_holds(var);
 }
+
+
+//make_visitor is modified from https://bitbashing.io/std-visit.html by Matt Kline
+template <typename... FuncTypes>
+struct _make_visitor_helper;
+
+template <typename FuncType>
+struct _make_visitor_helper<FuncType> : FuncType{
+    _make_visitor_helper(FuncType func) : FuncType(func) {}
+
+    using FuncType::operator();
+};
+
+template <typename FuncType, typename... RestFuncTypes>
+struct _make_visitor_helper<FuncType, RestFuncTypes...> : FuncType, _make_visitor_helper<RestFuncTypes...>{
+    _make_visitor_helper(FuncType func, RestFuncTypes... rest) : FuncType(func), _make_visitor_helper<RestFuncTypes...>(rest...) {}
+
+    using FuncType::operator();
+    using _make_visitor_helper<RestFuncTypes...>::operator();
+};
+
+template <typename... FuncTypes>
+auto make_visitor(FuncTypes... funcs){
+    return _make_visitor_helper<FuncTypes...>(funcs...);
+}
+
 #endif

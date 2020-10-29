@@ -24,17 +24,14 @@ using X86InstructionImmediateParameterPrototype_t = std::variant<X86InstructionI
 const auto x86InstructionImmediateParameterPrototypeGetSize = [](const auto & immediatePrototype)->ParameterSize {
     return immediatePrototype.size();
 };
-struct x86InstructionImmediateParameterPrototypeSpecify{
+auto x86InstructionImmediateParameterPrototypeSpecify = make_visitor(
 
-    template<InstructionImmediateSize T>
-    std::shared_ptr<InstructionParameter> operator() (const X86InstructionImmediateParameterPrototypeSpecification<T>& ref, const uint64_t& value) const {
+    []<InstructionImmediateSize T>(const X86InstructionImmediateParameterPrototypeSpecification<T>& ref, const uint64_t& value) -> std::shared_ptr<InstructionParameter>{
         return std::make_shared<X86InstructionImmediateParameter>(ref.specify(value));
-    }
-    
-    template <typename T>
-    std::shared_ptr<InstructionParameter> operator() (const T&, const uint64_t&) const {
+    },
+    [](const auto&, const uint64_t&) ->std::shared_ptr<InstructionParameter>{
         return nullptr;
     }
-};
+);
 
 #endif

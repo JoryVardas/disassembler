@@ -14,4 +14,8 @@ using X86InstructionParameterPrototype = variant_join<X86InstructionRegisterPara
                                                       X86InstructionAddressParameterPrototype_t,
                                                       X86InstructionImmediateParameterPrototype_t>;
 
+auto x86InstructionParameterPrototypeSpecify = make_visitor(x86InstructionRegisterParameterPrototypeSpecify,
+                                                           x86InstructionImmediateParameterPrototypeSpecify,
+                                                           x86InstructionAddressParameterPrototypeSpecify);
+
 #endif

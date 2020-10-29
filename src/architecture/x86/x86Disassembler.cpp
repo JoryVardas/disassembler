@@ -253,13 +253,13 @@ std::vector<std::shared_ptr<InstructionParameter>> X86Disassembler::decodeInstru
                 
                 if(holds_any_alternative<X86InstructionRegisterParameterPrototype_t>(prototype)){
                         if (parameterLocation == X86InstructionParameterLocation::MODRM_REG){
-                                specifiedParameterList.emplace_back(std::visit(std::bind(x86InstructionRegisterParameterPrototypeSpecify{}, std::placeholders::_1, X86InstructionRegisterParameterGroups.at(static_cast<std::size_t>(getModrmReg(modrm)))), prototype));
+                                specifiedParameterList.emplace_back(std::visit(std::bind(x86InstructionParameterPrototypeSpecify, std::placeholders::_1, X86InstructionRegisterParameterGroups.at(static_cast<std::size_t>(getModrmReg(modrm)))), prototype));
                         }
                         else if(parameterLocation == X86InstructionParameterLocation::MODRM_RM){
-                                specifiedParameterList.emplace_back(std::visit(std::bind(x86InstructionRegisterParameterPrototypeSpecify{}, std::placeholders::_1, X86InstructionRegisterParameterGroups.at(static_cast<std::size_t>(getModrmRM(modrm)))), prototype));
+                                specifiedParameterList.emplace_back(std::visit(std::bind(x86InstructionParameterPrototypeSpecify, std::placeholders::_1, X86InstructionRegisterParameterGroups.at(static_cast<std::size_t>(getModrmRM(modrm)))), prototype));
                         }
                         else if(parameterLocation == X86InstructionParameterLocation::IMPLIED){
-                                specifiedParameterList.emplace_back(std::visit(std::bind(x86InstructionRegisterParameterPrototypeSpecify{}, std::placeholders::_1, X86InstructionRegisterParameterGroups.at(0)), prototype));
+                                specifiedParameterList.emplace_back(std::visit(std::bind(x86InstructionParameterPrototypeSpecify, std::placeholders::_1, X86InstructionRegisterParameterGroups.at(0)), prototype));
                         }
                 }
                 else if(holds_any_alternative<X86InstructionAddressParameterPrototype_t>(prototype)){
@@ -296,7 +296,7 @@ std::vector<std::shared_ptr<InstructionParameter>> X86Disassembler::decodeInstru
                                                 break;
                                 }
                         }
-                        specifiedParameterList.emplace_back(std::visit(std::bind(x86InstructionAddressParameterPrototypeSpecify{}, std::placeholders::_1, currentAddressMode, modrm, sib, displacementValue), prototype));
+                        specifiedParameterList.emplace_back(std::visit(std::bind(x86InstructionParameterPrototypeSpecify, std::placeholders::_1, currentAddressMode, modrm, sib, displacementValue), prototype));
                 }
                 else if (holds_any_alternative<X86InstructionImmediateParameterPrototype_t>(prototype)){
                         uint64_t immediateValue = 0;
@@ -333,7 +333,7 @@ std::vector<std::shared_ptr<InstructionParameter>> X86Disassembler::decodeInstru
                                 }
                         }
 
-                        specifiedParameterList.emplace_back(std::visit(std::bind(x86InstructionImmediateParameterPrototypeSpecify{}, std::placeholders::_1, immediateValue), prototype));
+                        specifiedParameterList.emplace_back(std::visit(std::bind(x86InstructionParameterPrototypeSpecify, std::placeholders::_1, immediateValue), prototype));
                 }
         }
 

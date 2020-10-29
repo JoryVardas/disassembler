@@ -47,18 +47,17 @@ using X86InstructionRegisterParameterPrototype_t = std::variant<X86InstructionSi
 const auto x86InstructionRegisterParameterPrototypeGetSize = [](const auto & registerPrototype)->ParameterSize {
     return registerPrototype.size();
 };
-struct x86InstructionRegisterParameterPrototypeSpecify{
-    
-    template<RegisterSize T>
-    std::shared_ptr<InstructionParameter> operator() (const X86InstructionRegisterParameterPrototypeSpecification<T>& ref, const X86InstructionRegisterParameterGroup& registerGroup) const {
+
+auto x86InstructionRegisterParameterPrototypeSpecify = make_visitor(
+    []<RegisterSize T>(const X86InstructionRegisterParameterPrototypeSpecification<T>& ref, const X86InstructionRegisterParameterGroup& registerGroup) ->std::shared_ptr<InstructionParameter>{
         return std::make_shared<X86InstructionRegisterParameter>(ref.specify(registerGroup));
-    }
-    std::shared_ptr<InstructionParameter> operator() (const X86InstructionSingleRegisterParameterPrototypeSpecification& ref, const X86InstructionRegisterParameterGroup& registerGroup) const;
-    
-    template <typename T>
-    std::shared_ptr<InstructionParameter> operator() (const T&, const X86InstructionRegisterParameterGroup&) const {
+    },
+    [](const X86InstructionSingleRegisterParameterPrototypeSpecification& ref, const X86InstructionRegisterParameterGroup& registerGroup) ->std::shared_ptr<InstructionParameter>{
+        return std::make_shared<X86InstructionRegisterParameter>(ref.specify(registerGroup));
+    },
+    [](const auto&, const X86InstructionRegisterParameterGroup&)->std::shared_ptr<InstructionParameter>{
         return nullptr;
     }
-};
+);
 
 #endif
