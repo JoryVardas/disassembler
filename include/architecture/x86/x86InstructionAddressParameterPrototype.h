@@ -11,24 +11,10 @@
 #include "variant.h"
 #include "x86InstructionParameterPrototypeTypes.h"
 
-struct X86InstructionAddressParameterPrototype {
-public:
-    X86InstructionAddressParameterPrototype();
-    X86InstructionAddressParameterPrototype(const X86InstructionAddressParameterPrototype&);
-    X86InstructionAddressParameterPrototype(X86InstructionAddressParameterPrototype&&);
-    virtual ~X86InstructionAddressParameterPrototype();
-
-    virtual X86InstructionAddressParameterSize size() const = 0;
-    virtual X86InstructionAddressParameter specify(X86Environment::X86AddressMode addressMode, modrm_t modrm, sib_t sib, X86InstructionAddressDisplacement displacement) const = 0;
-
-    X86InstructionAddressParameterPrototype& operator=(const X86InstructionAddressParameterPrototype&);
-    X86InstructionAddressParameterPrototype& operator=(X86InstructionAddressParameterPrototype&&);
-};
-
 template<X86InstructionAddressParameterSize Size>
-struct X86InstructionAddressParameterPrototypeSpecification : public X86InstructionAddressParameterPrototype {
+struct X86InstructionAddressParameterPrototypeSpecification {
 public:
-    constexpr X86InstructionAddressParameterSize size() const override {return Size;};
+    constexpr X86InstructionAddressParameterSize size() const {return Size;};
 
     constexpr X86InstructionAddressParameter specify(X86Environment::X86AddressMode addressMode, modrm_t modrm, sib_t sib, X86InstructionAddressDisplacement displacement) const {
         // Check if the modrm RM encodes a register instead of an address.

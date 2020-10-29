@@ -1,9 +1,1 @@
 #include <architecture\x86\x86InstructionAddressParameterPrototype.h>
-
-X86InstructionAddressParameterPrototype::X86InstructionAddressParameterPrototype() = default;
-X86InstructionAddressParameterPrototype::X86InstructionAddressParameterPrototype(const X86InstructionAddressParameterPrototype&) = default;
-X86InstructionAddressParameterPrototype::X86InstructionAddressParameterPrototype(X86InstructionAddressParameterPrototype&&) = default;
-X86InstructionAddressParameterPrototype::~X86InstructionAddressParameterPrototype() = default;
-
-X86InstructionAddressParameterPrototype& X86InstructionAddressParameterPrototype::operator=(const X86InstructionAddressParameterPrototype&) = default;
-X86InstructionAddressParameterPrototype& X86InstructionAddressParameterPrototype::operator=(X86InstructionAddressParameterPrototype&&) = default;
