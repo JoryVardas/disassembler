@@ -10,8 +10,8 @@ endif()
 # Make sure Windows exports all the symbols (exluding data symbols)
 set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 
-# Enable c++ 17
-set(CMAKE_CXX_STANDARD 17)
+# Enable c++ 20
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
