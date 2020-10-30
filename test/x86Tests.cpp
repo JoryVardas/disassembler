@@ -207,10 +207,14 @@ std::string generateInstructionTestAssembly(const X86Environment& targetEnvironm
     }();
 
     parameterCombinations.erase(
-        std::remove_if(std::begin(parameterCombinations), std::end(parameterCombinations), [](const InstructionParameterGroup& group){
+        std::remove_if(std::begin(parameterCombinations), std::end(parameterCombinations), [&targetEnvironment](const InstructionParameterGroup& group){
             uint16_t firstParamSize = getParameterPrototypeSize(group.at(0));
-            return std::count_if(++std::begin(group), std::end(group), [&firstParamSize](const auto& param){
+            return std::count_if(std::begin(group), std::end(group), [&targetEnvironment, &firstParamSize](const auto& param){
                 uint16_t paramSize = getParameterPrototypeSize(param);
+
+                if(targetEnvironment._defaultInstructionMode == X86Environment::X86InstructionMode::LEGACY)
+                    if(paramSize >= 64) return true;
+
                 if (holds_any_alternative<X86InstructionRegisterParameterPrototype_t>(param)
                     || holds_any_alternative<X86InstructionAddressParameterPrototype_t>(param)){
                     return paramSize != firstParamSize;

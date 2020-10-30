@@ -17,11 +17,11 @@
 #define r8 X86InstructionRegisterParameterPrototypeSpecification<8>()
 #define r16 X86InstructionRegisterParameterPrototypeSpecification<16>()
 #define r32 X86InstructionRegisterParameterPrototypeSpecification<32>()
-#define r64
+#define r64 X86InstructionRegisterParameterPrototypeSpecification<64>()
 #define m8 X86InstructionAddressParameterPrototypeSpecification<X86InstructionAddressParameterSize::BYTE_PTR>()
 #define m16 X86InstructionAddressParameterPrototypeSpecification<X86InstructionAddressParameterSize::WORD_PTR>()
 #define m32 X86InstructionAddressParameterPrototypeSpecification<X86InstructionAddressParameterSize::DWORD_PTR>()
-#define m64
+#define m64 X86InstructionAddressParameterPrototypeSpecification<X86InstructionAddressParameterSize::QWORD_PTR>()
 #define rm8 r8, m8
 #define rm16 r16, m16
 #define rm32 r32, m32
@@ -30,7 +30,7 @@
 #define AL X86InstructionSingleRegisterParameterPrototypeSpecification("AL")
 #define AX X86InstructionSingleRegisterParameterPrototypeSpecification("AX")
 #define EAX X86InstructionSingleRegisterParameterPrototypeSpecification("EAX")
-#define RAX /*std::make_shared<X86InstructionSingleRegisterParameterPrototypeSpecification>("RAX")*/
+#define RAX X86InstructionSingleRegisterParameterPrototypeSpecification("RAX")
 
 #define MODE X86Environment::X86InstructionMode
 #define LOCATION X86InstructionParameterLocation

@@ -42,7 +42,8 @@ private:
 using X86InstructionRegisterParameterPrototype_t = std::variant<X86InstructionSingleRegisterParameterPrototypeSpecification,
                                                               X86InstructionRegisterParameterPrototypeSpecification<8>,
                                                               X86InstructionRegisterParameterPrototypeSpecification<16>,
-                                                              X86InstructionRegisterParameterPrototypeSpecification<32>>;
+                                                              X86InstructionRegisterParameterPrototypeSpecification<32>,
+                                                              X86InstructionRegisterParameterPrototypeSpecification<64>>;
 
 const auto x86InstructionRegisterParameterPrototypeGetSize = [](const auto & registerPrototype)->ParameterSize {
     return registerPrototype.size();

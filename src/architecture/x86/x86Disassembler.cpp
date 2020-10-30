@@ -111,8 +111,10 @@ std::vector<std::shared_ptr<InstructionParameter>> X86Disassembler::decodeInstru
 
         using ParameterMode = X86Environment::X86ParameterMode;
         using AddressMode = X86Environment::X86AddressMode;
-        const ParameterMode currentParameterMode = [&prefixList](const ParameterMode& defaultParameterMode){
-                if(std::find(std::cbegin(prefixList), std::cend(prefixList), X86InstructionRawPrefix::OPERAND_SIZE_OVERRIDE) != std::cend(prefixList)){
+        const ParameterMode currentParameterMode = [&instructionPrototype, &prefixList](const ParameterMode& defaultParameterMode){
+                if(!instructionPrototype.requiresNoPrefix()
+                && !instructionPrototype.requiresPrefix(X86InstructionRawPrefix::OPERAND_SIZE_OVERRIDE)
+                && std::find(std::cbegin(prefixList), std::cend(prefixList), X86InstructionRawPrefix::OPERAND_SIZE_OVERRIDE) != std::cend(prefixList)){
                         switch (defaultParameterMode){
                                 case ParameterMode::X16:
                                         return ParameterMode::X32;
@@ -124,8 +126,10 @@ std::vector<std::shared_ptr<InstructionParameter>> X86Disassembler::decodeInstru
                 }
                 return defaultParameterMode;
         }(_disassemblerEnvirionment._defaultParameterMode);
-        const AddressMode currentAddressMode = [&prefixList](const AddressMode& defaultAddressMode){
-                if(std::find(std::cbegin(prefixList), std::cend(prefixList), X86InstructionRawPrefix::ADDRESS_SIZE_OVERRIDE) != std::cend(prefixList)){
+        const AddressMode currentAddressMode = [&instructionPrototype, &prefixList](const AddressMode& defaultAddressMode){
+                if(!instructionPrototype.requiresNoPrefix()
+                && !instructionPrototype.requiresPrefix(X86InstructionRawPrefix::ADDRESS_SIZE_OVERRIDE)
+                && std::find(std::cbegin(prefixList), std::cend(prefixList), X86InstructionRawPrefix::ADDRESS_SIZE_OVERRIDE) != std::cend(prefixList)){
                         switch (defaultAddressMode){
                                 case AddressMode::X16:
                                         return AddressMode::X32;
@@ -137,6 +141,15 @@ std::vector<std::shared_ptr<InstructionParameter>> X86Disassembler::decodeInstru
                 }
                 return defaultAddressMode;
         }(_disassemblerEnvirionment._defaultAdressMode);
+
+        const auto rexPrefix = [&prefixList](){
+                auto i = std::find_if(std::cbegin(prefixList), std::cend(prefixList), [](const auto& prefix){
+                        return std::holds_alternative<X86InstructionRexPrefix>(prefix);
+                });
+                if(i != std::cend(prefixList))
+                        return std::get<X86InstructionRexPrefix>(*i);
+                return X86InstructionRexPrefix(std::byte(0));
+        }();
         
         const auto [modrm, sib] = [&instructionParameterPrototypes, &currentAddressMode, &bytesToDecode](){
                 auto parameterPrototypeNeedsModrm = [](const InstructionParameterPrototype& currentParameterPrototype){
