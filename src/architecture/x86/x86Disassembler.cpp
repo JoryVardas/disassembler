@@ -119,7 +119,7 @@ std::vector<std::shared_ptr<InstructionParameter>> X86Disassembler::decodeInstru
                                 case ParameterMode::X32:
                                         return ParameterMode::X16;
                                 case ParameterMode::X64:
-                                        return ParameterMode::X64;
+                                        return ParameterMode::X32;
                         }
                 }
                 return defaultParameterMode;
@@ -132,7 +132,7 @@ std::vector<std::shared_ptr<InstructionParameter>> X86Disassembler::decodeInstru
                                 case AddressMode::X32:
                                         return AddressMode::X16;
                                 case AddressMode::X64:
-                                        return AddressMode::X64;
+                                        return AddressMode::X32;
                         }
                 }
                 return defaultAddressMode;
