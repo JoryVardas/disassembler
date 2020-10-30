@@ -39,6 +39,14 @@ bool X86InstructionPrototype::prefixListMatches(const std::vector<X86Instruction
         return std::find(prefixList.cbegin(), prefixList.cend(), currentPrefix) != prefixList.cend();
     });
 }
+bool X86InstructionPrototype::requiresPrefix(const X86InstructionPrefix& prefix) const{
+    if (!_requiredPrefixes || _requiredPrefixes.value().empty()) return false;
+
+    return std::find(std::cbegin(_requiredPrefixes.value()), std::cend(_requiredPrefixes.value()), prefix) != std::cend(_requiredPrefixes.value());
+}
+bool X86InstructionPrototype::requiresNoPrefix() const{
+    return !_requiredPrefixes;
+}
 bool X86InstructionPrototype::opcodeMatches(const X86InstructionOpcode opcode, BidirectionalIterator<std::byte> bytesToDecode) const {
     if( _instructionOpcode == opcode){
         if(_modrmOpcodeExtensionValue){

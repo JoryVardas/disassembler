@@ -43,6 +43,8 @@ public:
 
     bool isMatch(const X86Environment::X86InstructionMode currentInstructionMode, const std::vector<X86InstructionPrefix>& prefixList, const X86InstructionOpcode opcode, BidirectionalIterator<std::byte>& bytesToDecode) const;
     bool prefixListMatches(const std::vector<X86InstructionPrefix>& prefixList) const;
+    bool requiresPrefix(const X86InstructionPrefix& prefix) const;
+    bool requiresNoPrefix() const;
     bool opcodeMatches(const X86InstructionOpcode opcode, BidirectionalIterator<std::byte> bytesToDecode) const;
 
     const std::string& getInstructionName() const;
