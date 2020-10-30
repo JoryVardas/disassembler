@@ -6,8 +6,8 @@
 #include "x86InstructionPrototype.h"
 
 
-#define ANY_PREFIX std::vector<X86InstructionRawPrefix>()
-#define PREFIX_LIST(...) std::vector<X86InstructionRawPrefix>{__VA_ARGS__}
+#define ANY_PREFIX std::vector<X86InstructionPrefix>()
+#define PREFIX_LIST(...) std::vector<X86InstructionPrefix>{__VA_ARGS__}
 #define PREFIX_66 X86InstructionRawPrefix::OPERAND_SIZE_OVERRIDE
 #define PREFIX_67 X86InstructionRawPrefix::ADDRESS_SIZE_OVERRIDE
 

@@ -14,7 +14,7 @@ X86Disassembler::X86Disassembler(X86Disassembler&&) = default;
 X86Disassembler::~X86Disassembler() = default;
         
 std::unique_ptr<Instruction> X86Disassembler::decodeInstruction(BidirectionalIterator<std::byte>& bytesToDecode) const{
-        std::vector<X86InstructionRawPrefix> prefixList = decodeInstructionPrefixes(bytesToDecode);
+        std::vector<X86InstructionPrefix> prefixList = decodeInstructionPrefixes(bytesToDecode);
         X86InstructionOpcode opcode = retrieveInstructionOpcode(bytesToDecode);
         X86InstructionPrototype instructionPrototype = decodeInstructionPrototype(prefixList, opcode, bytesToDecode);
         std::vector<std::shared_ptr<InstructionParameter>> params = decodeInstructionParameters(instructionPrototype, prefixList, bytesToDecode);
@@ -32,14 +32,14 @@ std::unique_ptr<Instruction> X86Disassembler::decodeInstruction(BidirectionalIte
 
 
 
-std::vector<X86InstructionRawPrefix> X86Disassembler::decodeInstructionPrefixes(BidirectionalIterator<std::byte>& bytesToDecode) const{
-        std::vector<X86InstructionRawPrefix> prefixList;
+std::vector<X86InstructionPrefix> X86Disassembler::decodeInstructionPrefixes(BidirectionalIterator<std::byte>& bytesToDecode) const{
+        std::vector<X86InstructionPrefix> prefixList;
         
         if (!bytesToDecode.isValid()){
                 throw std::range_error("Ran out of bytes to decode while decoding instruction prefixes.");
         }
 
-        std::optional<X86InstructionRawPrefix> possiblePrefix = decodeX86InstructionPrefix(*bytesToDecode);
+        std::optional<X86InstructionPrefix> possiblePrefix = decodeX86InstructionPrefix(*bytesToDecode);
         while (possiblePrefix.has_value()){
                 prefixList.push_back(possiblePrefix.value());
 
@@ -94,7 +94,7 @@ X86InstructionOpcode X86Disassembler::retrieveInstructionOpcode(BidirectionalIte
         return opcode;
 }
 
-X86InstructionPrototype X86Disassembler::decodeInstructionPrototype(const std::vector<X86InstructionRawPrefix>& prefixList, const X86InstructionOpcode opcode, BidirectionalIterator<std::byte>& bytesToDecode) const{
+X86InstructionPrototype X86Disassembler::decodeInstructionPrototype(const std::vector<X86InstructionPrefix>& prefixList, const X86InstructionOpcode opcode, BidirectionalIterator<std::byte>& bytesToDecode) const{
         const X86Environment::X86InstructionMode currentInstructionMode = _disassemblerEnvirionment._defaultInstructionMode;
         auto found = std::find_if(X86InstructionPrototypeList.begin(), X86InstructionPrototypeList.end(), [&currentInstructionMode, &prefixList, &opcode, &bytesToDecode](const X86InstructionPrototype& currentInstructionPrototype){
                 return currentInstructionPrototype.isMatch(currentInstructionMode, prefixList, opcode, bytesToDecode);
@@ -106,7 +106,7 @@ X86InstructionPrototype X86Disassembler::decodeInstructionPrototype(const std::v
 }
 
 
-std::vector<std::shared_ptr<InstructionParameter>> X86Disassembler::decodeInstructionParameters(const X86InstructionPrototype& instructionPrototype, const std::vector<X86InstructionRawPrefix>& prefixList, BidirectionalIterator<std::byte>& bytesToDecode) const{
+std::vector<std::shared_ptr<InstructionParameter>> X86Disassembler::decodeInstructionParameters(const X86InstructionPrototype& instructionPrototype, const std::vector<X86InstructionPrefix>& prefixList, BidirectionalIterator<std::byte>& bytesToDecode) const{
         std::vector<InstructionParameterPrototype> instructionParameterPrototypes = instructionPrototype.getPossibleInstructionParameters();
 
         using ParameterMode = X86Environment::X86ParameterMode;

@@ -1,6 +1,23 @@
 #include <architecture\x86\x86InstructionPrefix.h>
 
-std::optional<X86InstructionRawPrefix> decodeX86InstructionPrefix(const std::byte byteToDecode){
+
+X86InstructionRexPrefix::X86InstructionRexPrefix(const std::byte byte) : _prefix(byte){};
+X86InstructionRexPrefix::X86InstructionRexPrefix(const X86InstructionRexPrefix&) = default;
+X86InstructionRexPrefix::X86InstructionRexPrefix(X86InstructionRexPrefix&&) = default;
+X86InstructionRexPrefix::~X86InstructionRexPrefix() = default;
+X86InstructionRexPrefix& X86InstructionRexPrefix::operator=(const X86InstructionRexPrefix&) = default;
+X86InstructionRexPrefix& X86InstructionRexPrefix::operator=(X86InstructionRexPrefix&&) = default;
+
+
+std::byte X86InstructionRexPrefix::getW() const {return (_prefix & std::byte(0b00001000)) >> 3;}
+std::byte X86InstructionRexPrefix::getR() const {return (_prefix & std::byte(0b00000100)) >> 2;}
+std::byte X86InstructionRexPrefix::getX() const {return (_prefix & std::byte(0b00000010)) >> 1;}
+std::byte X86InstructionRexPrefix::getB() const {return (_prefix & std::byte(0b00000001));}
+
+
+std::optional<X86InstructionPrefix> decodeX86InstructionPrefix(const std::byte byteToDecode){
+        if((byteToDecode & X86InstructionRexPrefix::IdentifierMask) == X86InstructionRexPrefix::Identifier)
+                return X86InstructionRexPrefix(byteToDecode);
         switch (static_cast<int>(byteToDecode)){
                 case static_cast<int>(X86InstructionRawPrefix::ADDRESS_SIZE_OVERRIDE) :
                         return X86InstructionRawPrefix::ADDRESS_SIZE_OVERRIDE;
@@ -25,7 +42,7 @@ std::optional<X86InstructionRawPrefix> decodeX86InstructionPrefix(const std::byt
                 case static_cast<int>(X86InstructionRawPrefix::REP) :
                         return X86InstructionRawPrefix::REP;
                 default:
-                        return std::optional<X86InstructionRawPrefix>();
+                        return std::optional<X86InstructionPrefix>();
         }
 }
 
@@ -57,3 +74,21 @@ std::string X86InstructionPrefixToString(const X86InstructionRawPrefix prefix, c
         
         return "";
 }
+
+
+bool operator ==(const X86InstructionRawPrefix& a, const X86InstructionPrefix& b){
+        if(!std::holds_alternative<X86InstructionRawPrefix>(b)) return false;
+        return std::get<X86InstructionRawPrefix>(b) == a;
+};
+bool operator ==(const X86InstructionPrefix& a, const X86InstructionRawPrefix& b){
+        if(!std::holds_alternative<X86InstructionRawPrefix>(a)) return false;
+        return std::get<X86InstructionRawPrefix>(a) == b;
+};
+bool operator ==(const X86InstructionPrefix& a, const X86InstructionPrefix& b){
+        if(a.index() != b.index()) return false;
+        if(std::holds_alternative<X86InstructionRawPrefix>(a))
+                return std::get<X86InstructionRawPrefix>(a) == std::get<X86InstructionRawPrefix>(b);
+        if(std::holds_alternative<X86InstructionRexPrefix>(a))
+                return std::get<X86InstructionRexPrefix>(a) == std::get<X86InstructionRexPrefix>(b);
+        return false;
+};

@@ -3,6 +3,7 @@
 
 #include <optional>
 #include <string>
+#include "variant.h"
 
 enum class X86InstructionRawPrefix {
         //group 4
@@ -28,7 +29,33 @@ enum class X86InstructionRawPrefix {
         REP = 0xf3
 };
 
-std::optional<X86InstructionRawPrefix> decodeX86InstructionPrefix(const std::byte byteToDecode);
-std::string X86InstructionPrefixToString(const X86InstructionRawPrefix prefix, const bool useBranchHintsInsteadOfSegmentOverrides = false);
+struct X86InstructionRexPrefix{
+        const static std::byte IdentifierMask = std::byte(0xF0);
+        const static std::byte Identifier = std::byte(0x40);
+
+        std::byte _prefix;
+
+        X86InstructionRexPrefix(const std::byte);
+        X86InstructionRexPrefix(const X86InstructionRexPrefix&);
+        X86InstructionRexPrefix(X86InstructionRexPrefix&&);
+        ~X86InstructionRexPrefix();
+
+        std::byte getW() const;
+        std::byte getR() const;
+        std::byte getX() const;
+        std::byte getB() const;
+
+        X86InstructionRexPrefix& operator=(const X86InstructionRexPrefix&);
+        X86InstructionRexPrefix& operator=(X86InstructionRexPrefix&&);
+};
+
+using X86InstructionPrefix = std::variant<X86InstructionRawPrefix, X86InstructionRexPrefix>;
+
+std::optional<X86InstructionPrefix> decodeX86InstructionPrefix(const std::byte byteToDecode);
+std::string X86InstructionPrefixToString(const X86InstructionPrefix prefix, const bool useBranchHintsInsteadOfSegmentOverrides = false);
+
+bool operator==(const X86InstructionRawPrefix& a, const X86InstructionPrefix& b);
+bool operator==(const X86InstructionPrefix& a, const X86InstructionRawPrefix& b);
+bool operator==(const X86InstructionPrefix& a, const X86InstructionPrefix& b);
 
 #endif

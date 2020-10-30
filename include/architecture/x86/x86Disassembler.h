@@ -28,10 +28,10 @@ public:
 private:
         X86Environment _disassemblerEnvirionment;
 
-        std::vector<X86InstructionRawPrefix> decodeInstructionPrefixes(BidirectionalIterator<std::byte>& bytesToDecode) const;
+        std::vector<X86InstructionPrefix> decodeInstructionPrefixes(BidirectionalIterator<std::byte>& bytesToDecode) const;
         X86InstructionOpcode retrieveInstructionOpcode(BidirectionalIterator<std::byte>& bytesToDecode) const;
-        X86InstructionPrototype decodeInstructionPrototype(const std::vector<X86InstructionRawPrefix>& prefixList, const X86InstructionOpcode opcode, BidirectionalIterator<std::byte>& bytesToDecode) const;
-        std::vector<std::shared_ptr<InstructionParameter>> decodeInstructionParameters(const X86InstructionPrototype& instructionPrototype, const std::vector<X86InstructionRawPrefix>& prefixList, BidirectionalIterator<std::byte>& bytesToDecode) const;
+        X86InstructionPrototype decodeInstructionPrototype(const std::vector<X86InstructionPrefix>& prefixList, const X86InstructionOpcode opcode, BidirectionalIterator<std::byte>& bytesToDecode) const;
+        std::vector<std::shared_ptr<InstructionParameter>> decodeInstructionParameters(const X86InstructionPrototype& instructionPrototype, const std::vector<X86InstructionPrefix>& prefixList, BidirectionalIterator<std::byte>& bytesToDecode) const;
 };
 
 #endif

@@ -4,7 +4,7 @@
 #include <algorithm>
 
 X86Instruction::X86Instruction() = default;
-X86Instruction::X86Instruction(const std::string& name, const std::vector<X86InstructionRawPrefix>& prefixList, const std::vector<std::shared_ptr<InstructionParameter>>& parameters) :
+X86Instruction::X86Instruction(const std::string& name, const std::vector<X86InstructionPrefix>& prefixList, const std::vector<std::shared_ptr<InstructionParameter>>& parameters) :
         Instruction(name, parameters), _prefixList(prefixList) {}
 X86Instruction::X86Instruction(X86Instruction&) = default;
 X86Instruction::X86Instruction(X86Instruction&&) = default;
