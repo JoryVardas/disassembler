@@ -229,8 +229,15 @@ std::string generateInstructionTestAssembly(const X86Environment& targetEnvironm
 
         generatedAssembly << generateParameterTestAssembly(targetEnvironment, group.at(0));
 
-        std::for_each(++std::begin(group), std::end(group), [&generatedAssembly, &targetEnvironment](const auto& param){
-            generatedAssembly << ", " << generateParameterTestAssembly(targetEnvironment, param);
+        bool isDest64Register = std::holds_alternative<X86InstructionRegisterParameterPrototypeSpecification<64>>(group.at(0));
+
+        std::for_each(++std::begin(group), std::end(group), [&generatedAssembly, &targetEnvironment, &isDest64Register](const auto& param){
+            std::string imm = generateParameterTestAssembly(targetEnvironment, param);
+
+            if(isDest64Register && std::holds_alternative<X86InstructionImmediateParameterPrototypeSpecification<32>>(param))
+                if (imm[2] >= '8')
+                    imm.insert(0, "FFFFFFFF");
+            generatedAssembly << ", " << imm;
         });
         generatedAssembly << "\n";
     });
@@ -238,25 +245,30 @@ std::string generateInstructionTestAssembly(const X86Environment& targetEnvironm
     return generatedAssembly.str();
 }
 
-void generateTestData(std::string assemblerLocation){
+void generateTestData(std::string assemblerLocation, X86Environment::X86InstructionMode instructionMode){
     try{
         std::ofstream assemblyFile("test_data.asm", std::ofstream::trunc);
 
         X86Environment targetEnvironment;
         targetEnvironment._defaultAdressMode = X86Environment::X86AddressMode::X32;
-        targetEnvironment._defaultInstructionMode = X86Environment::X86InstructionMode::LEGACY;
         targetEnvironment._defaultParameterMode = X86Environment::X86ParameterMode::X32;
 
-        if(targetEnvironment._defaultInstructionMode == X86Environment::X86InstructionMode::LEGACY){
+        if(instructionMode == X86Environment::X86InstructionMode::LEGACY || instructionMode == X86Environment::X86InstructionMode::BOTH ){
+            targetEnvironment._defaultInstructionMode = X86Environment::X86InstructionMode::LEGACY;
             assemblyFile << "[BITS 32]\n";
+            for(const auto& instructionPrototype : X86InstructionPrototypeList){
+                if(instructionPrototype.getValidMode() == X86Environment::X86InstructionMode::LEGACY || instructionPrototype.getValidMode() == X86Environment::X86InstructionMode::BOTH){
+                    assemblyFile << AddAssemblerOverrides(generateInstructionTestAssembly(targetEnvironment, instructionPrototype)) << "\n";
+                }
+            }
         }
-        else {
+        if(instructionMode == X86Environment::X86InstructionMode::X64 || instructionMode == X86Environment::X86InstructionMode::BOTH ){
+            targetEnvironment._defaultInstructionMode = X86Environment::X86InstructionMode::X64;
             assemblyFile << "[BITS 64]\n";
-        }
-
-        for(const auto& instructionPrototype : X86InstructionPrototypeList){
-            if(instructionPrototype.getValidMode() == targetEnvironment._defaultInstructionMode || instructionPrototype.getValidMode() == X86Environment::X86InstructionMode::BOTH){
-                assemblyFile << AddAssemblerOverrides(generateInstructionTestAssembly(targetEnvironment, instructionPrototype)) << "\n";
+            for(const auto& instructionPrototype : X86InstructionPrototypeList){
+                if(instructionPrototype.getValidMode() == X86Environment::X86InstructionMode::X64 || instructionPrototype.getValidMode() == X86Environment::X86InstructionMode::BOTH){
+                    assemblyFile << AddAssemblerOverrides(generateInstructionTestAssembly(targetEnvironment, instructionPrototype)) << "\n";
+                }
             }
         }
         assemblyFile.close();
@@ -326,7 +338,6 @@ void runTests(bool outputSuccess){
 
         X86Environment targetEnvironment;
         targetEnvironment._defaultAdressMode = X86Environment::X86AddressMode::X32;
-        targetEnvironment._defaultInstructionMode = X86Environment::X86InstructionMode::LEGACY;
         targetEnvironment._defaultParameterMode = X86Environment::X86ParameterMode::X32;
         targetEnvironment._endianness = X86Environment::X86Endianness::LITTLE_ENDIAN;
 
@@ -339,7 +350,13 @@ void runTests(bool outputSuccess){
             std::string line = getAssemblyLine();
             currentLine++;
             if(std::size(line) == 0) continue;
-            if(line.find("[BITS", 0) == 0) continue;
+            if(line.find("[BITS", 0) == 0){
+                if(line.find("[BITS 32]", 0) == 0)
+                    targetEnvironment._defaultInstructionMode = X86Environment::X86InstructionMode::LEGACY;
+                if(line.find("[BITS 64]", 0) == 0)
+                    targetEnvironment._defaultInstructionMode = X86Environment::X86InstructionMode::X64;
+                continue;
+            }
 
             auto decodedInstruction = disassembler.decodeInstruction(binaryFileIterator);
             std::string decodedInstructionString = decodedInstruction->toString();
@@ -387,6 +404,10 @@ void printHelp(){
         "\t\t Will run the tests.\n"
         "\t --output-success\n"
         "\t\t Will cause successful tests to be printed when running tests.\n"
+        "\t --test-legacy\n"
+        "\t\t Will generate tests for legacy instructions only.\n"
+        "\t --test-x64\n"
+        "\t\t Will generate tests for x64 instructions only.\n"
         << std::endl;
 }
 
@@ -396,7 +417,16 @@ int main(int argc, const char* argv[]){
     
     for(;currentArgument != std::cend(arguments); ++currentArgument){
         if(*currentArgument == "--generate"){
-            generateTestData(*(++currentArgument));
+            X86Environment::X86InstructionMode instructionMode = [&arguments](){
+                if(std::any_of(std::cbegin(arguments), std::cend(arguments), [](const auto& argument){
+                    return argument == "--test-legacy";
+                })) return X86Environment::X86InstructionMode::LEGACY;
+                if(std::any_of(std::cbegin(arguments), std::cend(arguments), [](const auto& argument){
+                    return argument == "--test-x64";
+                })) return X86Environment::X86InstructionMode::X64;
+                return X86Environment::X86InstructionMode::BOTH;
+            }();
+            generateTestData(*(++currentArgument), instructionMode);
             return 0;
         }
         else if(*currentArgument == "--run"){
