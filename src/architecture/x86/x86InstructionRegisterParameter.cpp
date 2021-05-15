@@ -1,4 +1,4 @@
-#include <architecture\x86\x86InstructionRegisterParameter.h>
+#include <architecture/x86/x86InstructionRegisterParameter.h>
 
 X86InstructionRegisterParameter::X86InstructionRegisterParameter() = default;
 X86InstructionRegisterParameter::X86InstructionRegisterParameter(const X86InstructionRegisterParameter&) = default;

@@ -10,8 +10,8 @@
 #include <cstdlib>
 #include <filesystem>
 
-#include <architecture\x86\x86InstructionPrototypeList.h>
-#include <architecture\x86\x86Disassembler.h>
+#include <architecture/x86/x86InstructionPrototypeList.h>
+#include <architecture/x86/x86Disassembler.h>
 
 std::random_device rd;
 std::mt19937 random(rd());

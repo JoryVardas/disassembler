@@ -1,4 +1,4 @@
-#include <architecture\x86\x86InstructionImmediateParameter.h>
+#include <architecture/x86/x86InstructionImmediateParameter.h>
 
 #include <sstream>
 

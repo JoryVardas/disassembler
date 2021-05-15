@@ -1,4 +1,4 @@
-#include <architecture\x86\x86InstructionAddressParameter.h>
+#include <architecture/x86/x86InstructionAddressParameter.h>
 
 #include <sstream>
 

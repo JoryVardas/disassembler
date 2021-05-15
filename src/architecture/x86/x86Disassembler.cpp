@@ -1,12 +1,12 @@
-#include <architecture\x86\x86Disassembler.h>
+#include <architecture/x86/x86Disassembler.h>
 
 #include <algorithm>
 
-#include <architecture\x86\x86Instruction.h>
-#include <architecture\x86\x86InstructionPrototype.h>
-#include <architecture\x86\x86InstructionPrototypeList.h>
+#include <architecture/x86/x86Instruction.h>
+#include <architecture/x86/x86InstructionPrototype.h>
+#include <architecture/x86/x86InstructionPrototypeList.h>
 
-#include <architecture\x86\x86Modrm.h>
+#include <architecture/x86/x86Modrm.h>
 
 X86Disassembler::X86Disassembler(X86Environment& environment) : _disassemblerEnvirionment(environment) {}
 X86Disassembler::X86Disassembler(X86Disassembler&) = default;

@@ -1,4 +1,4 @@
-#include <architecture\x86\x86Instruction.h>
+#include <architecture/x86/x86Instruction.h>
 
 #include <sstream>
 #include <algorithm>

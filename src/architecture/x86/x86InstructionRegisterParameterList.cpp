@@ -1,1 +1,1 @@
-#include <architecture\x86\x86InstructionRegisterParameterList.h>
+#include <architecture/x86/x86InstructionRegisterParameterList.h>

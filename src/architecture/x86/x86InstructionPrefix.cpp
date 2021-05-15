@@ -1,4 +1,4 @@
-#include <architecture\x86\x86InstructionPrefix.h>
+#include <architecture/x86/x86InstructionPrefix.h>
 
 
 X86InstructionRexPrefix::X86InstructionRexPrefix(const std::byte byte) : _prefix(byte){};

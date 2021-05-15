@@ -1,4 +1,4 @@
-#include <architecture\x86\x86Modrm.h>
+#include <architecture/x86/x86Modrm.h>
 
 /*
 constexpr std::byte getModrmMod(const modrm_t& modrm) {

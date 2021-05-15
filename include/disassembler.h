@@ -5,7 +5,7 @@
 #include <vector>
 #include <memory>
 
-#include "Instruction.h"
+#include "instruction.h"
 #include "bidirectionalIterator.h"
 
 

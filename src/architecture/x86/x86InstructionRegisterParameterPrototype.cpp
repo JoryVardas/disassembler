@@ -1,4 +1,4 @@
-#include <architecture\x86\x86InstructionRegisterParameterPrototype.h>
+#include <architecture/x86/x86InstructionRegisterParameterPrototype.h>
 
 X86InstructionSingleRegisterParameterPrototypeSpecification::X86InstructionSingleRegisterParameterPrototypeSpecification() = default;
 X86InstructionSingleRegisterParameterPrototypeSpecification::X86InstructionSingleRegisterParameterPrototypeSpecification(const X86InstructionSingleRegisterParameterPrototypeSpecification&) = default;

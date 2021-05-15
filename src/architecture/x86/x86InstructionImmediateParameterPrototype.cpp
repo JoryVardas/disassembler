@@ -1,1 +1,1 @@
-#include <architecture\x86\x86InstructionImmediateParameterPrototype.h>
+#include <architecture/x86/x86InstructionImmediateParameterPrototype.h>

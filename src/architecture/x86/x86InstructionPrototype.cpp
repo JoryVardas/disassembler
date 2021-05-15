@@ -1,9 +1,9 @@
-#include <architecture\x86\x86InstructionPrototype.h>
+#include <architecture/x86/x86InstructionPrototype.h>
 
 #include <algorithm>
 #include <utility>
 
-#include <architecture\x86\x86Modrm.h>
+#include <architecture/x86/x86Modrm.h>
 
 
 X86InstructionPrototype::X86InstructionPrototype() = default;

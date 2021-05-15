@@ -1,1 +1,1 @@
-#include <architecture\x86\x86InstructionAddressParameterPrototype.h>
+#include <architecture/x86/x86InstructionAddressParameterPrototype.h>
