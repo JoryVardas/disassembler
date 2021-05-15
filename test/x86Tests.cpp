@@ -339,7 +339,7 @@ void runTests(bool outputSuccess){
         X86Environment targetEnvironment;
         targetEnvironment._defaultAdressMode = X86Environment::X86AddressMode::X32;
         targetEnvironment._defaultParameterMode = X86Environment::X86ParameterMode::X32;
-        targetEnvironment._endianness = X86Environment::X86Endianness::LITTLE_ENDIAN;
+        targetEnvironment._endianness = std::endian::little;
 
         X86Disassembler disassembler(targetEnvironment);
 

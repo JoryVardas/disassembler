@@ -1,6 +1,8 @@
 #ifndef ARCHITECTURE_X86_X86ENVIRONMENT_H
 #define ARCHITECTURE_X86_X86ENVIRONMENT_H
 
+#include <bit>
+
 struct X86Environment {
 public:
         enum class X86AddressMode {
@@ -18,15 +20,11 @@ public:
                 X64,
                 BOTH
         };
-        enum class X86Endianness {
-                LITTLE_ENDIAN,
-                BIG_ENDIAN
-        };
 
         X86AddressMode _defaultAdressMode;
         X86ParameterMode _defaultParameterMode;
         X86InstructionMode _defaultInstructionMode;
-        X86Endianness _endianness;
+        std::endian _endianness;
 private:
 };
 

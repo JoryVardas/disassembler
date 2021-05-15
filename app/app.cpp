@@ -26,7 +26,7 @@ int main(/*int argc, char* argv[]*/){
                 env._defaultAdressMode = X86Environment::X86AddressMode::X32;
                 env._defaultInstructionMode = X86Environment::X86InstructionMode::LEGACY;
                 env._defaultParameterMode = X86Environment::X86ParameterMode::X32;
-                env._endianness = X86Environment::X86Endianness::LITTLE_ENDIAN;
+                env._endianness = std::endian::little;
                 X86Disassembler disasm(env);
                 std::vector<std::unique_ptr<Instruction>> decodedInstructions;
                 decodedInstructions.emplace_back(disasm.decodeInstruction(byteStream));

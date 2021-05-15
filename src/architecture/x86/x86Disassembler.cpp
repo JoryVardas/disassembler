@@ -277,7 +277,7 @@ std::vector<std::shared_ptr<InstructionParameter>> X86Disassembler::decodeInstru
                 }
                 else if(holds_any_alternative<X86InstructionAddressParameterPrototype_t>(prototype)){
                         uint64_t displacementValue = 0;
-                        if (_disassemblerEnvirionment._endianness==X86Environment::X86Endianness::BIG_ENDIAN){
+                        if (_disassemblerEnvirionment._endianness==std::endian::big){
                                 switch(getDisplacementSizeRequiredByModrm(modrm, sib, currentAddressMode) / 8){
                                         case 4:
                                                 displacementValue += static_cast<uint64_t>(*(bytesToDecode++));
@@ -292,7 +292,7 @@ std::vector<std::shared_ptr<InstructionParameter>> X86Disassembler::decodeInstru
                                                 break;
                                 }
                         }
-                        else if (_disassemblerEnvirionment._endianness==X86Environment::X86Endianness::LITTLE_ENDIAN){
+                        else if (_disassemblerEnvirionment._endianness==std::endian::little){
                                 switch(getDisplacementSizeRequiredByModrm(modrm, sib, currentAddressMode) / 8){
                                         case 4:
                                                 displacementValue += static_cast<uint64_t>(*(bytesToDecode++));
@@ -313,7 +313,7 @@ std::vector<std::shared_ptr<InstructionParameter>> X86Disassembler::decodeInstru
                 }
                 else if (holds_any_alternative<X86InstructionImmediateParameterPrototype_t>(prototype)){
                         uint64_t immediateValue = 0;
-                        if (_disassemblerEnvirionment._endianness==X86Environment::X86Endianness::BIG_ENDIAN){
+                        if (_disassemblerEnvirionment._endianness==std::endian::big){
                                 switch(std::get<InstructionImmediateSize>(std::visit(x86InstructionImmediateParameterPrototypeGetSize, prototype)) / 8){
                                         case 4:
                                                 immediateValue += static_cast<uint64_t>(*(bytesToDecode++));
@@ -328,7 +328,7 @@ std::vector<std::shared_ptr<InstructionParameter>> X86Disassembler::decodeInstru
                                                 break;
                                 }
                         }
-                        else if (_disassemblerEnvirionment._endianness==X86Environment::X86Endianness::LITTLE_ENDIAN){
+                        else if (_disassemblerEnvirionment._endianness==std::endian::little){
                                 switch(std::get<InstructionImmediateSize>(std::visit(x86InstructionImmediateParameterPrototypeGetSize, prototype)) / 8){
                                         case 4:
                                                 immediateValue += static_cast<uint64_t>(*(bytesToDecode++));
