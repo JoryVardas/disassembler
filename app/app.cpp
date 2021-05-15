@@ -20,7 +20,7 @@ int main(/*int argc, char* argv[]*/){
                         std::byte(X86InstructionRawPrefix::LOCK), std::byte(0x37)
                 };
 
-                BidirectionalIterator<std::byte> byteStream ( std::begin(test)._Ptr, static_cast<const int64_t>(std::size(test)));
+                BidirectionalIterator<std::byte> byteStream ( std::data(test), static_cast<const int64_t>(std::size(test)));
 
                 X86Environment env;
                 env._defaultAdressMode = X86Environment::X86AddressMode::X32;
