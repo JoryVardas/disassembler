@@ -4,9 +4,10 @@
 #include "variant.h"
 
 #include "x86InstructionAddressParameter.h"
-#include "x86InstructionRegisterParameter.h"
 #include "x86InstructionImmediateParameter.h"
+#include "x86InstructionRegisterParameter.h"
 
-using ParameterSize = std::variant<X86InstructionAddressParameterSize, RegisterSize, InstructionImmediateSize>;
+using ParameterSize = std::variant<X86InstructionAddressParameterSize,
+                                   RegisterSize, InstructionImmediateSize>;
 
 #endif
