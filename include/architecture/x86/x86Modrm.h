@@ -8,9 +8,6 @@
 using modrm_t = std::byte;
 using sib_t = std::byte;
 
-#pragma warning(push)
-#pragma warning(disable : 4514)
-
 /*
 constexpr std::byte getModrmMod(const modrm_t& modrm);
 constexpr std::byte getModrmRM(const modrm_t& modrm);
@@ -78,5 +75,4 @@ getDisplacementSizeRequiredByModrm(modrm_t modrm, sib_t sib,
     return 0;
 }
 
-#pragma warning(pop)
 #endif
