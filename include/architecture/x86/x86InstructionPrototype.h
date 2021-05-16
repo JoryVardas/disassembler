@@ -92,14 +92,12 @@ struct X86InstructionPrototype {
   private:
     std::string _instructionName;
     X86Environment::X86InstructionMode _validMode;
-    PADDING(4);
     // if optional has no value, then it is required that the instruction no
     // have any prefixes. otherwise the list contains only the required
     // prefixes.
     std::optional<std::vector<X86InstructionPrefix>> _requiredPrefixes;
     X86InstructionOpcode _instructionOpcode;
     std::optional<uint8_t> _modrmOpcodeExtensionValue;
-    PADDING(2);
     std::vector<InstructionParameterPrototype>
         _instructionParameterPossibilities;
     std::optional<customComparisonFunction> _customComparison;

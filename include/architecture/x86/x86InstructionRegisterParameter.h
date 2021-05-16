@@ -27,7 +27,6 @@ struct X86InstructionRegisterParameter : public InstructionParameter {
   private:
     std::string _name;
     RegisterSize _size;
-    PADDING(6);
 };
 
 #endif

@@ -64,10 +64,8 @@ struct X86InstructionAddressParameter : public InstructionParameter {
   private:
     X86InstructionAddressParameterSize _addressSize =
         X86InstructionAddressParameterSize::BYTE_PTR;
-    PADDING(4);
     std::optional<X86InstructionRegisterParameter> _registerBase;
     X86InstructionAddressScaleFactor _scaleFactor = 1;
-    PADDING(7);
     std::optional<X86InstructionRegisterParameter> _registerDisplacement;
     X86InstructionAddressDisplacement _constantDisplacement = 0;
 };
