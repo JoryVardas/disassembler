@@ -31,7 +31,7 @@ target_compile_options(Disassembler PRIVATE -Wall
         $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:
           -Werror>
         $<$<CXX_COMPILER_ID:MSVC>:
-          /WX /wd5045>)
+          /WX /wd5045 /wd4514>)
 
 target_include_directories(Disassembler PUBLIC "${PROJECT_BINARY_DIR}/include")
 target_include_directories(Disassembler PUBLIC include)
