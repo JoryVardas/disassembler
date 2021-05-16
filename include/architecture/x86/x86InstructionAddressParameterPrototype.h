@@ -8,6 +8,7 @@
 #include "x86Environment.h"
 #include "x86InstructionAddressParameter.h"
 #include "x86InstructionParameterPrototypeTypes.h"
+#include "x86InstructionRegisterParameterGroups.h"
 #include "x86InstructionRegisterParameterList.h"
 #include "x86Modrm.h"
 
