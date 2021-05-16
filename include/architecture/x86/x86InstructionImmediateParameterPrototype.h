@@ -11,8 +11,7 @@ struct X86InstructionImmediateParameterPrototypeSpecification {
   public:
     constexpr InstructionImmediateSize size() const { return Size; };
 
-    constexpr X86InstructionImmediateParameter
-    specify(const uint64_t value) const {
+    X86InstructionImmediateParameter specify(const uint64_t value) const {
         return X86InstructionImmediateParameter(value);
     }
 };

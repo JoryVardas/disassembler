@@ -17,7 +17,7 @@ struct X86InstructionAddressParameterPrototypeSpecification {
   public:
     constexpr X86InstructionAddressParameterSize size() const { return Size; };
 
-    constexpr X86InstructionAddressParameter
+    X86InstructionAddressParameter
     specify(X86Environment::X86AddressMode addressMode, modrm_t modrm,
             sib_t sib, X86InstructionAddressDisplacement displacement) const {
         // Check if the modrm RM encodes a register instead of an address.

@@ -15,7 +15,7 @@ struct X86InstructionRegisterParameterPrototypeSpecification {
   public:
     constexpr RegisterSize size() const { return Size; };
 
-    constexpr X86InstructionRegisterParameter
+    X86InstructionRegisterParameter
     specify(const X86InstructionRegisterParameterGroup& registerGroup) const {
         return *(
             std::find_if(std::cbegin(registerGroup), std::cend(registerGroup),
