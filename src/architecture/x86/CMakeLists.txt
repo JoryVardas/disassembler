@@ -9,8 +9,8 @@ target_sources(Disassembler PRIVATE
         x86InstructionAddressParameter.cpp
         x86InstructionRegisterParameterGroups.cpp
         x86InstructionRegisterParameterPrototype.cpp
-        X86InstructionImmediateParameterPrototype.cpp
-        X86InstructionRegisterParameterList.cpp
+        x86InstructionImmediateParameterPrototype.cpp
+        x86InstructionRegisterParameterList.cpp
         x86InstructionAddressParameterPrototype.cpp
         x86Modrm.cpp
 )
