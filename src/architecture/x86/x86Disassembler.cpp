@@ -215,7 +215,8 @@ X86Disassembler::decodeInstructionParameters(
     }();
 
     auto removeRegisterOrMemoryCandidates =
-        [&modrm](const X86InstructionParameterPrototype& candidateParameter) {
+        [modrm = modrm](
+            const X86InstructionParameterPrototype& candidateParameter) {
             if (getModrmMod(modrm) == std::byte(3) &&
                 holds_any_alternative<
                     X86InstructionAddressParameterPrototype_t>(
