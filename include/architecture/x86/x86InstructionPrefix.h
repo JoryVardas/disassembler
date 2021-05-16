@@ -4,6 +4,7 @@
 #include <optional>
 #include <string>
 #include "variant.h"
+#include <cstddef>
 
 enum class X86InstructionRawPrefix {
         //group 4
