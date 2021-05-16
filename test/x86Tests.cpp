@@ -14,7 +14,7 @@
 #include <architecture/x86/x86InstructionPrototypeList.h>
 
 std::random_device rd;
-std::mt19937 random(rd());
+std::mt19937 random_engine(rd());
 std::uniform_int_distribution<unsigned short> distributionOver0to7(0, 7);
 std::uniform_int_distribution<unsigned short>
     distributionOverByte(0, std::numeric_limits<unsigned char>::max());
@@ -127,7 +127,7 @@ struct GenerateParameterTestAssemblyVisitor {
                const X86Environment&) const {
         return parameterPrototype
             .specify(X86InstructionRegisterParameterGroups.at(
-                static_cast<std::size_t>(distributionOver0to7(random))))
+                static_cast<std::size_t>(distributionOver0to7(random_engine))))
             .toString();
     };
     std::string operator()(
@@ -146,7 +146,7 @@ struct GenerateParameterTestAssemblyVisitor {
         const modrm_t generatedModrm = []() {
             while (true) {
                 modrm_t potentialModrm =
-                    static_cast<modrm_t>(distributionOverByte(random));
+                    static_cast<modrm_t>(distributionOverByte(random_engine));
                 if (getModrmMod(potentialModrm) != std::byte(3))
                     return potentialModrm;
             }
@@ -160,7 +160,7 @@ struct GenerateParameterTestAssemblyVisitor {
 
             while (true) {
                 sib_t potentialSib =
-                    static_cast<sib_t>(distributionOverByte(random));
+                    static_cast<sib_t>(distributionOverByte(random_engine));
                 if (getSibIndex(potentialSib) != std::byte(4))
                     return potentialSib;
             }
@@ -168,16 +168,20 @@ struct GenerateParameterTestAssemblyVisitor {
         const uint64_t generatedDisplacement = [&generatedModrm,
                                                 &targetEnvironment]() {
             if (getModrmMod(generatedModrm) == std::byte(1)) {
-                return static_cast<uint64_t>(distributionOverByte(random));
+                return static_cast<uint64_t>(
+                    distributionOverByte(random_engine));
             } else if (getModrmMod(generatedModrm) == std::byte(0) ||
                        getModrmMod(generatedModrm) == std::byte(2)) {
                 switch (targetEnvironment._defaultAdressMode) {
                 case X86Environment::X86AddressMode::X16:
-                    return static_cast<uint64_t>(distributionOverWord(random));
+                    return static_cast<uint64_t>(
+                        distributionOverWord(random_engine));
                 case X86Environment::X86AddressMode::X32:
-                    return static_cast<uint64_t>(distributionOverDWord(random));
+                    return static_cast<uint64_t>(
+                        distributionOverDWord(random_engine));
                 case X86Environment::X86AddressMode::X64:
-                    return static_cast<uint64_t>(distributionOverQWord(random));
+                    return static_cast<uint64_t>(
+                        distributionOverQWord(random_engine));
                 }
             }
             return static_cast<uint64_t>(0);
@@ -195,21 +199,21 @@ struct GenerateParameterTestAssemblyVisitor {
                    parameterPrototype,
                const X86Environment&) const {
         uint64_t generatedImmediate =
-            static_cast<uint64_t>(distributionOverByte(random));
+            static_cast<uint64_t>(distributionOverByte(random_engine));
         switch (parameterPrototype.size() / 8) {
         case 1:
             break;
         case 2:
             generatedImmediate =
-                static_cast<uint64_t>(distributionOverWord(random));
+                static_cast<uint64_t>(distributionOverWord(random_engine));
             break;
         case 4:
             generatedImmediate =
-                static_cast<uint64_t>(distributionOverDWord(random));
+                static_cast<uint64_t>(distributionOverDWord(random_engine));
             break;
         case 8:
             generatedImmediate =
-                static_cast<uint64_t>(distributionOverQWord(random));
+                static_cast<uint64_t>(distributionOverQWord(random_engine));
             break;
         }
         return parameterPrototype.specify(generatedImmediate).toString();
