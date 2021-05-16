@@ -25,9 +25,9 @@ struct all_in<TypeCollection<TypesToCheck...>,
     : std::conjunction<
           is_in<TypesToCheck, TypeCollection<TypesToCheckAgainst...>>...> {};
 
-template <typename... Ts> struct change_container;
+template <typename NewContainer, typename OldContainer> struct change_container;
 template <template <typename...> typename NewContainer,
-          template <typename> typename OldContainer, typename... Ts>
+          template <typename...> typename OldContainer, typename... Ts>
 struct change_container<NewContainer<>, OldContainer<Ts...>> {
     using _type = NewContainer<Ts...>;
 };
