@@ -1,0 +1,6 @@
+[submodule "test/lib/Catch2"]
+	path = test/lib/Catch2
+	url = https://github.com/catchorg/Catch2.git
+[submodule "test/lib/fmt"]
+	path = test/lib/fmt
+	url = https://github.com/fmtlib/fmt.git

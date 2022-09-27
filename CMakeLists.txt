@@ -52,7 +52,4 @@ target_compile_options(Disassembler-app PRIVATE -Wall
 add_subdirectory(app)
 
 # Settings for the tests
-add_executable(Disassembler-test "")
-target_link_libraries(Disassembler-test PUBLIC Disassembler)
-
 add_subdirectory(test)

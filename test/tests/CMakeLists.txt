@@ -1,0 +1,1 @@
+add_subdirectory(single_instruction_tests)
