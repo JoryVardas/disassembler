@@ -6,6 +6,8 @@
 #include <cstddef>
 #include <tuple>
 
+#include "concepts.h"
+
 namespace Testing::Helpers {
 struct prefix_t {
     std::string name;
