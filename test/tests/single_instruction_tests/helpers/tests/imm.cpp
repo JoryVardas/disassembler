@@ -56,7 +56,7 @@ TEST_CASE("IMM", "[helper test]") {
             GENERATE(take(10, random(uint8_t{0x00}, uint8_t{0xFF}))));
         INFO(fmt::format("IMM Value: {}", imm_val));
         IMMParameter imm{imm_val};
-        REQUIRE(imm.toString() == fmt::format("{:#x}", toBigEndian(imm_val)));
+        REQUIRE(imm.toString({}) == fmt::format("{:#x}", toBigEndian(imm_val)));
         REQUIRE(imm.toByteVector(std::endian::little)[0] == std::byte{imm_val});
         REQUIRE(imm.toByteVector(std::endian::big)[0] == std::byte{imm_val});
     }
@@ -66,7 +66,7 @@ TEST_CASE("IMM", "[helper test]") {
         INFO(fmt::format("IMM Value: {}", imm_val));
         uint16_t imm_val_swapped = swapEndian(imm_val);
         IMMParameter imm{imm_val};
-        REQUIRE(imm.toString() == fmt::format("{:#x}", imm_val));
+        REQUIRE(imm.toString({}) == fmt::format("{:#x}", imm_val));
         REQUIRE(imm.toByteVector(std::endian::big)[0] ==
                 std::byte{static_cast<uint8_t>((imm_val & 0xFF00) >> 8)});
         REQUIRE(imm.toByteVector(std::endian::big)[1] ==
@@ -83,7 +83,7 @@ TEST_CASE("IMM", "[helper test]") {
         INFO(fmt::format("IMM Value: {}", imm_val));
         uint32_t imm_val_swapped = swapEndian(imm_val);
         IMMParameter imm{imm_val};
-        REQUIRE(imm.toString() == fmt::format("{:#x}", imm_val));
+        REQUIRE(imm.toString({}) == fmt::format("{:#x}", imm_val));
         REQUIRE(imm.toByteVector(std::endian::big)[0] ==
                 std::byte{static_cast<uint8_t>((imm_val & 0xFF000000) >> 24)});
         REQUIRE(imm.toByteVector(std::endian::big)[1] ==
@@ -112,7 +112,7 @@ TEST_CASE("IMM", "[helper test]") {
         INFO(fmt::format("IMM Value: {}", imm_val));
         uint64_t imm_val_swapped = swapEndian(imm_val);
         IMMParameter imm{imm_val};
-        REQUIRE(imm.toString() == fmt::format("{:#x}", imm_val));
+        REQUIRE(imm.toString({}) == fmt::format("{:#x}", imm_val));
         REQUIRE(imm.toByteVector(std::endian::big)[0] ==
                 std::byte{static_cast<uint8_t>((imm_val & 0xFF00000000000000) >>
                                                56)});
