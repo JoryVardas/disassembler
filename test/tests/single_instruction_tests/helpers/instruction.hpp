@@ -65,9 +65,6 @@ struct Instruction {
         for (const auto& prefix : prefixes) {
             if (prefix)
                 _bytes.push_back(prefix.value().value);
-            std::ranges::copy(
-                getAllParameterBytes(outputEndianness, op1, op2, op3),
-                std::back_inserter(_bytes));
         }
         std::ranges::copy(opcode, std::back_inserter(_bytes));
         std::ranges::copy(getAllParameterBytes(outputEndianness, op1, op2, op3),
