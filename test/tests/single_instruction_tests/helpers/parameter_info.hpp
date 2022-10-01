@@ -10,7 +10,7 @@ class ParameterType {
   public:
     virtual ParameterRequires getRequires() const = 0;
     virtual std::byte getModRM() const = 0;
-    virtual std::vector<std::byte> virtual toByteVector(
+    virtual std::vector<std::byte> toByteVector(
         std::endian outputEndianness) const = 0;
     virtual std::string toString(std::vector<prefix_t> prefixes) const = 0;
 };
