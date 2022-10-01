@@ -17,25 +17,27 @@ struct Instruction {
 
     Instruction(std::string_view name,
                 std::vector<std::optional<prefix_t>> prefixes,
-                opcode_bytes& opcode)
-        : _prefixList(prefixes) {
-        _str = fmt::format("{}", name);
+                opcode_bytes& opcode) {
         for (const auto prefix : prefixes) {
-            if (prefix)
+            if (prefix) {
                 _bytes.push_back(prefix.value().value);
+                _prefixList.push_back(prefix.value());
+            }
         }
+        _str = fmt::format("{}", name);
         std::ranges::copy(opcode, std::back_inserter(_bytes));
     }
     Instruction(std::string_view name,
                 std::vector<std::optional<prefix_t>> prefixes,
                 opcode_bytes& opcode, Parameter op1,
-                std::endian outputEndianness)
-        : _prefixList(prefixes) {
-        _str = fmt::format("{} {}", name, op1.toString(prefixes));
+                std::endian outputEndianness) {
         for (const auto prefix : prefixes) {
-            if (prefix)
+            if (prefix) {
                 _bytes.push_back(prefix.value().value);
+                _prefixList.push_back(prefix.value());
+            }
         }
+        _str = fmt::format("{} {}", name, op1.toString(_prefixList));
         std::ranges::copy(opcode, std::back_inserter(_bytes));
         std::ranges::copy(getAllParameterBytes(outputEndianness, op1),
                           std::back_inserter(_bytes));
@@ -43,14 +45,15 @@ struct Instruction {
     Instruction(std::string_view name,
                 std::vector<std::optional<prefix_t>> prefixes,
                 opcode_bytes& opcode, Parameter op1, Parameter op2,
-                std::endian outputEndianness)
-        : _prefixList(prefixes) {
-        _str = fmt::format("{} {}, {}", name, op1.toString(prefixes),
-                           op2.toString(prefixes));
-        for (const auto& prefix : prefixes) {
-            if (prefix)
+                std::endian outputEndianness) {
+        for (const auto prefix : prefixes) {
+            if (prefix) {
                 _bytes.push_back(prefix.value().value);
+                _prefixList.push_back(prefix.value());
+            }
         }
+        _str = fmt::format("{} {}, {}", name, op1.toString(_prefixList),
+                           op2.toString(_prefixList));
         std::ranges::copy(opcode, std::back_inserter(_bytes));
         std::ranges::copy(getAllParameterBytes(outputEndianness, op1, op2),
                           std::back_inserter(_bytes));
@@ -58,14 +61,15 @@ struct Instruction {
     Instruction(std::string_view name,
                 std::vector<std::optional<prefix_t>> prefixes,
                 opcode_bytes& opcode, Parameter op1, Parameter op2,
-                Parameter op3, std::endian outputEndianness)
-        : _prefixList(prefixes) {
-        _str = fmt::format("{} {}, {}, {}", name, op1.toString(prefixes),
-                           op2.toString(prefixes), op3.toString(prefixes));
-        for (const auto& prefix : prefixes) {
-            if (prefix)
+                Parameter op3, std::endian outputEndianness) {
+        for (const auto prefix : prefixes) {
+            if (prefix) {
                 _bytes.push_back(prefix.value().value);
+                _prefixList.push_back(prefix.value());
+            }
         }
+        _str = fmt::format("{} {}, {}, {}", name, op1.toString(_prefixList),
+                           op2.toString(_prefixList), op3.toString(_prefixList));
         std::ranges::copy(opcode, std::back_inserter(_bytes));
         std::ranges::copy(getAllParameterBytes(outputEndianness, op1, op2, op3),
                           std::back_inserter(_bytes));
@@ -73,15 +77,16 @@ struct Instruction {
     Instruction(std::string_view name,
                 std::vector<std::optional<prefix_t>> prefixes,
                 opcode_bytes& opcode, Parameter op1, Parameter op2,
-                Parameter op3, Parameter op4, std::endian outputEndianness)
-        : _prefixList(prefixes) {
-        _str = fmt::format("{} {}, {}, {}, {}", name, op1.toString(prefixes),
-                           op2.toString(prefixes), op3.toString(prefixes),
-                           op4.toString(prefixes));
-        for (const auto& prefix : prefixes) {
-            if (prefix)
+                Parameter op3, Parameter op4, std::endian outputEndianness) {
+        for (const auto prefix : prefixes) {
+            if (prefix) {
                 _bytes.push_back(prefix.value().value);
+                _prefixList.push_back(prefix.value());
+            }
         }
+        _str = fmt::format("{} {}, {}, {}, {}", name, op1.toString(_prefixList),
+                           op2.toString(_prefixList), op3.toString(_prefixList),
+                           op4.toString(_prefixList));
         std::ranges::copy(opcode, std::back_inserter(_bytes));
         std::ranges::copy(
             getAllParameterBytes(outputEndianness, op1, op2, op3, op4),
@@ -94,7 +99,7 @@ struct Instruction {
     Instruction& operator=(const Instruction&) = default;
     Instruction& operator=(Instruction&&) = default;
 
-    std::vector<std::optional<prefix_t>>& getPrefixList() {
+    std::vector<prefix_t>& getPrefixList() {
         return _prefixList;
     }
 
@@ -102,7 +107,7 @@ struct Instruction {
     std::string _str;
     instruction_bytes _bytes;
 
-    std::vector<std::optional<prefix_t>> _prefixList;
+    std::vector<prefix_t> _prefixList;
 
     std::vector<std::byte> getAllParameterBytes(
         std::endian outputEndianness, /*bool
