@@ -256,48 +256,6 @@ struct RegisterParameter {
 #define ZMM30_REGISTER REGISTER512(ZMM30, 6)
 #define ZMM31_REGISTER REGISTER512(ZMM31, 7)
 
-namespace Testing::Helpers {
-using disp_set = imm_set;
-using disp_t = imm;
-
-struct address_t {
-    std::string str;
-    std::byte value;
-    std::optional<disp_t> disp;
-    std::byte mod;
-
-    // address_t(std::string n, std::byte m, std::byte val, std::string ptr,
-    //          std::optional<disp_t> d = std::nullopt)
-    //     : mod(m), value(val), disp(d) {
-    //     if (disp)
-    //         str = fmt::format(n, ptr, "", IMM_TO_BIG_ENDIAN(disp.value()));
-    //     else
-    //         str = fmt::format(n, ptr, "");
-    // };
-    address_t(std::string n, std::byte m, std::byte val, std::string ptr,
-              std::optional<prefix_t> segmentPrefix,
-              std::optional<disp_t> d /* = std::nullopt*/)
-        : mod(m), value(val), disp(d) {
-        if (segmentPrefix) {
-            if (disp)
-                str = fmt::format(n, ptr, segmentPrefix.value().name + ":",
-                                  IMM_TO_BIG_ENDIAN(disp.value()));
-            else
-                str = fmt::format(n, ptr, segmentPrefix.value().name + ":");
-        } else {
-            if (disp)
-                str = fmt::format(n, ptr, "", IMM_TO_BIG_ENDIAN(disp.value()));
-            else
-                str = fmt::format(n, ptr, "");
-        }
-    };
-
-    std::string getString() { return str; }
-
-    bool operator==(const address_t&) const = default;
-};
-} // namespace Testing::Helpers
-
 #define MODRM_NO_SEG std::nullopt
 #define MODRM_NO_DISP std::nullopt
 
@@ -421,39 +379,8 @@ struct address_t {
                 INTERNAL_MODRM16_WRAPPER(MODRM16_RM_2_7))
 
 #define GENERATE_MODRM16_RM(ptr, dispset, /*optional seg*/...)                 \
-    GENERATE(ALL_MODRM16_RM) \ (ptr, ON_EMPTY(std::nullopt, __VA_ARGS__,
+    GENERATE(ALL_MODRM16_RM) \ (ptr, ON_EMPTY(std::nullopt, __VA_ARGS__,\
     __VA_ARGS__), dispset)
-
- namespace Testing::Helpers {
-        using modrm_bytes = std::vector<std::byte>;
-
-        modrm_bytes modrm(address_t addr, RegisterParameter reg,
-                          bool switchEndianness) {
-            modrm_bytes ret;
-            std::byte modrmByte = addr.mod;
-            modrmByte |= addr.value;
-            modrmByte |= (reg.mod_r << 3);
-            ret.push_back(modrmByte);
-
-            if (addr.disp) {
-                std::vector<std::byte> dispBytes =
-                    immToBytes(addr.disp.value(), switchEndianness);
-                std::ranges::copy(dispBytes, std::back_inserter(ret));
-            }
-
-            return ret;
-        }
-        modrm_bytes modrm(RegisterParameter rm, RegisterParameter reg,
-                          bool switchEndianness) {
-            modrm_bytes ret;
-            std::byte modrmByte = std::byte{0xC0};
-            modrmByte |= rm.mod_r;
-            modrmByte |= (reg.mod_r << 3);
-            ret.push_back(modrmByte);
-
-            return ret;
-        }
-    } // namespace Testing::Helpers
 
 #define FIXED_R(val) REGISTER("", 0, std::byte{val})
 #define MODRM(disassembler, rm, r)                                             \
