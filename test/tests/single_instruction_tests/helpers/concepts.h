@@ -9,18 +9,18 @@ template <typename Container, typename T = typename Container::value_type,
           typename ConstIterator = typename Container::const_iterator,
           typename SizeType = typename Container::size_type,
           typename ConstReferenceType = typename Container::const_reference>
-concept container_view = requires() {
-    typename T;
-    typename ConstIterator;
-}
-&&std::forward_iterator<ConstIterator>&& requires(Container a) {
-    { a.cbegin() } -> std::same_as<ConstIterator>;
-    { a.cend() } -> std::same_as<ConstIterator>;
-    { a.size() } -> std::same_as<SizeType>;
-}
-&&requires(ConstIterator a) {
-    { *a } -> std::same_as<ConstReferenceType>;
-};
+concept container_view =
+    requires() {
+        typename T;
+        typename ConstIterator;
+    } && std::forward_iterator<ConstIterator> &&
+    requires(Container a) {
+        { a.cbegin() } -> std::same_as<ConstIterator>;
+        { a.cend() } -> std::same_as<ConstIterator>;
+        { a.size() } -> std::same_as<SizeType>;
+    } && requires(ConstIterator a) {
+             { *a } -> std::same_as<ConstReferenceType>;
+         };
 
 template <typename... Ts>
 concept all_same = std::conjunction_v<

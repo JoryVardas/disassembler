@@ -21,15 +21,18 @@ struct prefix_t {
 using prefix_bytes = std::vector<std::byte>;
 
 template <typename... Ts>
-requires std::same_as<prefix_t, std::tuple_element_t<0, std::tuple<Ts...>>> &&
-    all_same<Ts...>
-        prefix_bytes prefixesToBytes(Ts... args) {
+    requires std::same_as<prefix_t,
+                          std::tuple_element_t<0, std::tuple<Ts...>>> &&
+             all_same<Ts...>
+prefix_bytes prefixesToBytes(Ts... args) {
     return prefix_bytes{(args.value)...};
 };
 } // namespace Testing::Helpers
 
 #define INTERAL_DEFINE_PREFIX(name, prefix)                                    \
-    Testing::Helpers::prefix_t { #name, static_cast < std::byte>(prefix) }
+    Testing::Helpers::prefix_t {                                               \
+#name, static_cast < std::byte>(prefix)                                \
+    }
 
 #define LOCK_PREFIX INTERAL_DEFINE_PREFIX(LOCK, X86InstructionRawPrefix::LOCK)
 #define CS_SEGMENT_OVERRIDE_PREFIX                                             \

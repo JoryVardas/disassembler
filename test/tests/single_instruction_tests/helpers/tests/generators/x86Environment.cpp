@@ -368,7 +368,7 @@ TEST_CASE("X86EnvironmentGenerator",
                 X86Environment::X86ParameterMode::X64);
         REQUIRE(env1111._defaultInstructionMode ==
                 X86Environment::X86InstructionMode::X64);
-        
+
         REQUIRE(!gen.next());
     }
 }

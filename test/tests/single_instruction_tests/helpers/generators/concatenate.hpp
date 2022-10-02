@@ -8,7 +8,9 @@
 namespace Testing::Helpers::Generators {
 
 struct not_generator {};
-template <typename> struct get_generator_type { using type = not_generator; };
+template <typename> struct get_generator_type {
+    using type = not_generator;
+};
 
 template <typename INNER>
 struct get_generator_type<Catch::Generators::GeneratorWrapper<INNER>> {
