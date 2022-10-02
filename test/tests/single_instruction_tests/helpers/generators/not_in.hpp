@@ -10,9 +10,8 @@
 namespace Testing::Helpers::Generators {
 
 template <typename T, container_view Container,
-          typename U = typename Container::value_type/*,
-          typename ConstIterator = typename Container::const_iterator*/>
-requires std::movable<Container> && std::same_as<T, U>
+          typename U = typename Container::value_type>
+    requires std::movable<Container> && std::same_as<T, U>
 class NotInGenerator : public Catch::Generators::IGenerator<T> {
     Catch::Generators::GeneratorWrapper<T> _generator;
     Container _container;
@@ -51,12 +50,11 @@ class NotInGenerator : public Catch::Generators::IGenerator<T> {
 };
 namespace {
 template <typename T, container_view Container,
-          typename U = typename Container::value_type/*,
-          typename ConstIterator = typename Container::const_iterator*/>
-requires std::movable<Container> && std::same_as<T, U>
-    Catch::Generators::GeneratorWrapper<T>
-    not_in(Catch::Generators::GeneratorWrapper<T>&& generator,
-           Container&& container) {
+          typename U = typename Container::value_type>
+    requires std::movable<Container> && std::same_as<T, U>
+Catch::Generators::GeneratorWrapper<T>
+not_in(Catch::Generators::GeneratorWrapper<T>&& generator,
+       Container&& container) {
     return Catch::Generators::GeneratorWrapper<T>(
         Catch::Detail::make_unique<NotInGenerator<T, Container>>(
             std::move(generator), std::move(container)));

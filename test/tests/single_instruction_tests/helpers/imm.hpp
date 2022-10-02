@@ -30,11 +30,7 @@ struct IMMParameter : public ParameterType {
 
     std::string toString(std::vector<prefix_t>) const override {
         return std::visit(
-            [](const auto& val) {
-                // auto tmpVal = toBigEndian(val);
-                return fmt::format("{:#x}", val);
-            },
-            value);
+            [](const auto& val) { return fmt::format("{:#x}", val); }, value);
     }
     std::vector<std::byte>
     toByteVector(std::endian outputEndianness) const override {

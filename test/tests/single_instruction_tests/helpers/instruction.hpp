@@ -68,8 +68,9 @@ struct Instruction {
                 _prefixList.push_back(prefix.value());
             }
         }
-        _str = fmt::format("{} {}, {}, {}", name, op1.toString(_prefixList),
-                           op2.toString(_prefixList), op3.toString(_prefixList));
+        _str =
+            fmt::format("{} {}, {}, {}", name, op1.toString(_prefixList),
+                        op2.toString(_prefixList), op3.toString(_prefixList));
         std::ranges::copy(opcode, std::back_inserter(_bytes));
         std::ranges::copy(getAllParameterBytes(outputEndianness, op1, op2, op3),
                           std::back_inserter(_bytes));
@@ -99,9 +100,7 @@ struct Instruction {
     Instruction& operator=(const Instruction&) = default;
     Instruction& operator=(Instruction&&) = default;
 
-    std::vector<prefix_t>& getPrefixList() {
-        return _prefixList;
-    }
+    std::vector<prefix_t>& getPrefixList() { return _prefixList; }
 
   private:
     std::string _str;
@@ -109,13 +108,12 @@ struct Instruction {
 
     std::vector<prefix_t> _prefixList;
 
-    std::vector<std::byte> getAllParameterBytes(
-        std::endian outputEndianness, /*bool
-                                       * isDisassemblerNativeEndian,*/
-        std::optional<Parameter> op1 = std::nullopt,
-        std::optional<Parameter> op2 = std::nullopt,
-        std::optional<Parameter> op3 = std::nullopt,
-        std::optional<Parameter> op4 = std::nullopt) {
+    std::vector<std::byte>
+    getAllParameterBytes(std::endian outputEndianness,
+                         std::optional<Parameter> op1 = std::nullopt,
+                         std::optional<Parameter> op2 = std::nullopt,
+                         std::optional<Parameter> op3 = std::nullopt,
+                         std::optional<Parameter> op4 = std::nullopt) {
         std::vector<std::byte> ret;
 
         if (op1)

@@ -33,10 +33,6 @@
 #include "helpers/rm.h"
 
 using namespace Testing::Helpers::Generators;
-// using namespace Testing::Helpers;
-
-// using opcode_bytes = std::vector<std::byte>;
-// using parameter_bytes = std::vector<std::byte>;
 
 namespace {
 template <typename... Ts>
@@ -53,11 +49,6 @@ Testing::Helpers::opcode_bytes makeOpcode(Ts... args) {
 }
 
 #define OPCODE(...) makeOpcode(__VA_ARGS__)
-//
-// parameter_bytes makeImmediateParameterByteData(bool disassemblerIsNative,
-//                                               imm immVal) {
-//    return parameter_bytes{immToBytes(immVal, disassemblerIsNative)};
-//}
 
 } // namespace
 
@@ -76,83 +67,9 @@ Testing::Helpers::opcode_bytes makeOpcode(Ts... args) {
 #define CONDITIONAL_SECTION(expression, ...)                                   \
     if (expression)                                                            \
     SECTION(__VA_ARGS__)
-//
-// template <typename T>
-// using ParameterModeSwitchOption =
-//    std::pair<X86Environment::X86ParameterMode, T>;
-//
-// namespace {
-// template <typename T>
-// ParameterModeSwitchOption<T>
-// toParameterModeSwitchOption(X86Environment::X86ParameterMode mode, T val) {
-//    return {mode, val};
-//};
-// template <typename T, typename... Ts>
-// std::vector<T> toParameterModeSwitchVector(T arg1, Ts... args) {
-//    std::vector<T> tmp{{arg1, args...}};
-//    return tmp;
-//};
-//
-// template <typename T>
-// T parameterModeSwitch(X86Environment environment,
-//                      std::vector<ParameterModeSwitchOption<T>> vals) {
-//    auto found = std::ranges::find_if(vals, [&](const auto& cur) {
-//        return cur.first == environment._defaultParameterMode;
-//    });
-//    if (found != std::ranges::end(vals))
-//        return (*found).second;
-//    else
-//        return T{};
-//}
-//} // namespace
-//
-//#define PARAMETER_MODE_SWITCH(disassembler, ...) \
-//    parameterModeSwitch(disassembler##_env, \
-//                        toParameterModeSwitchVector(__VA_ARGS__))
-//
-//#define ON_X16(...) \
-//    toParameterModeSwitchOption(PARAMETER_MODE_X16, \
-//                                std::make_tuple(__VA_ARGS__))
-//#define ON_X32(...) \
-//    toParameterModeSwitchOption(PARAMETER_MODE_X32, \
-//                                std::make_tuple(__VA_ARGS__))
-//#define ON_X64(...) \
-//    toParameterModeSwitchOption(PARAMETER_MODE_X64, \
-//                                std::make_tuple(__VA_ARGS__))
-//
-//#define DECODE_INSTRUCTION(disassembler, name, ...) \
-//    MAKE_BYTE_STREAM(byteStream, __VA_ARGS__); \
-//    std::unique_ptr<Instruction> name = \
-//        disassembler.decodeInstruction(byteStream)
-//
-// using instruction_bytes = std::vector<std::byte>;
 
-// struct _empty_parameter {};
-// using parameter = std::variant<_empty_parameter, imm>;
-
-// struct parameter
 using parameter_generator =
     std::unique_ptr<ResettableGenerator<Testing::Helpers::Parameter>>;
-// GeneratorSelector<X86Environment, parameter>;
-
-namespace {
-//
-// std::vector<std::byte> getParameterBytes(const imm& val,
-//                                         bool isDisassemblerNativeEndian) {
-//    return immToBytes(val, isDisassemblerNativeEndian);
-//}
-// std::vector<std::byte> getParameterBytes(const _empty_parameter& val,
-//                                         bool isDisassemblerNativeEndian) {
-//    throw std::logic_error("Attempt to get the bytes of an empty parameter");
-//}
-
-} // namespace
-
-// using parameter_generator_type =
-//     GeneratorSelector<Parameter, parameter_info, X86Environment>;
-// using parameter_generator_selector =
-// std::unique_ptr<parameter_generator_type>; using ParameterOrSelector =
-//     std::variant<parameter_generator, parameter_generator_selector>;
 
 #define _PREFIXES(...)                                                         \
     Catch::Generators::chunk(                                                  \
@@ -240,8 +157,7 @@ namespace {
         __VA_ARGS__                                                            \
     }
 
-#define _CONDITION(...)                                                        \
-    __VA_ARGS__ /*[](const auto& environment) -> bool { __VA_ARGS__; }*/
+#define _CONDITION(...) __VA_ARGS__
 #define _ON_NEVER                                                              \
     _CONDITION([](const auto& curParameter, const auto& prefixList,            \
                   const auto& environment) -> bool { return false; })

@@ -21,7 +21,7 @@ class GeneratorSelector {
     using GeneratorIndex = std::size_t;
 
     template <typename... InputPair>
-    requires all_same<SelectorGeneratorPair, InputPair...>
+        requires all_same<SelectorGeneratorPair, InputPair...>
     GeneratorSelector(InputPair... pairs) {
         (selectorGeneratorInfo.emplace_back(true, std::move(pairs.first),
                                             std::move(pairs.second)),
@@ -40,7 +40,6 @@ class GeneratorSelector {
         if (selectedIndex == end())
             throw std::logic_error(
                 "No generator was selected during call to get");
-        // return std::get<2>(selectorGeneratorInfo.at(index))->get();
         return (std::get<2>(selectorGeneratorInfo.at(selectedIndex)))->get();
     }
     bool next(const SelectorTypes&... args) {
@@ -52,8 +51,9 @@ class GeneratorSelector {
         return select(args...) != end();
     }
 
-    void
-    reset() requires std::is_same_v<GeneratorType, ResettableGenerator<Type>> {
+    void reset()
+        requires std::is_same_v<GeneratorType, ResettableGenerator<Type>>
+    {
         std::ranges::for_each(selectorGeneratorInfo, [](auto& cur) {
             std::get<0>(cur) = true;
             std::get<2>(cur)->reset();
@@ -74,7 +74,6 @@ class GeneratorSelector {
         if (iter == std::ranges::end(selectorGeneratorInfo))
             return end();
 
-        // return *((*iter).second);
         return std::ranges::distance(std::ranges::begin(selectorGeneratorInfo),
                                      iter);
     }

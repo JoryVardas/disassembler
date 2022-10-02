@@ -14,13 +14,13 @@ template <typename T> T swapEndian(T val) {
     union U {
         T val;
         std::array<std::uint8_t, sizeof(T)> raw;
-    } src /*, dst*/;
+    } src;
 
     src.val = val;
-    // std::reverse_copy(src.raw.begin(), src.raw.end(), dst.raw.begin());
+
     std::ranges::reverse(std::ranges::begin(src.raw),
                          std::ranges::end(src.raw));
-    return src.val; // dst.val;
+    return src.val;
 }
 
 template <typename T> T toBigEndian(T val) {

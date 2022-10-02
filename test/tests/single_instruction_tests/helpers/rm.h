@@ -342,8 +342,6 @@ struct RegisterParameter {
 #define DWORD_PTR "DWORD"
 #define QWORD_PTR "QWORD"
 
-// dispset, ptr, seg_offset
-
 #define INTERNAL_MODRM16_WRAPPER(macro_to_call)                                \
     std::function<address_t(std::string, std::optional<prefix_t>, disp_set)> { \
                                                                                \
@@ -379,8 +377,8 @@ struct RegisterParameter {
                 INTERNAL_MODRM16_WRAPPER(MODRM16_RM_2_7))
 
 #define GENERATE_MODRM16_RM(ptr, dispset, /*optional seg*/...)                 \
-    GENERATE(ALL_MODRM16_RM) \ (ptr, ON_EMPTY(std::nullopt, __VA_ARGS__,\
-    __VA_ARGS__), dispset)
+    GENERATE(ALL_MODRM16_RM) \ (                                               \
+        ptr, ON_EMPTY(std::nullopt, __VA_ARGS__, __VA_ARGS__), dispset)
 
 #define FIXED_R(val) REGISTER("", 0, std::byte{val})
 #define MODRM(disassembler, rm, r)                                             \

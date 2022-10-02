@@ -6,16 +6,7 @@
 #include <architecture/x86/x86Environment.h>
 #include <fmt/format.h>
 #include <optional>
-//
-// template <typename CharT>
-// struct fmt::formatter<Testing::Helpers::Parameter, CharT>
-//    : public fmt::formatter<basic_string_view<CharT>> {
-//    template <typename FormatContext>
-//    auto format(const Testing::Helpers::Parameter& op, FormatContext& fc) {
-//        return fmt::formatter<basic_string_view<CharT>>::format(op.toString(),
-//                                                                fc);
-//    }
-//};
+
 template <typename CharT>
 struct fmt::formatter<X86Environment, CharT>
     : public fmt::formatter<basic_string_view<CharT>> {
