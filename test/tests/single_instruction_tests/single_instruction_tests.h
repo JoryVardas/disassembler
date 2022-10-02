@@ -71,101 +71,101 @@ Testing::Helpers::opcode_bytes makeOpcode(Ts... args) {
 using parameter_generator =
     std::unique_ptr<ResettableGenerator<Testing::Helpers::Parameter>>;
 
-#define _PREFIXES(...)                                                         \
+#define PREFIXES_(...)                                                         \
     Catch::Generators::chunk(                                                  \
         1, concatenate_as<std::optional<Testing::Helpers::prefix_t>>(          \
                __VA_ARGS__))
 
-#define _NO_PREFIX                                                             \
+#define NO_PREFIX_                                                             \
     std::optional<Testing::Helpers::prefix_t> { std::nullopt }
 
-#define _LOCK_PREFIXES                                                         \
+#define LOCK_PREFIXES_                                                         \
     concatenate_as<std::optional<Testing::Helpers::prefix_t>>(LOCK_PREFIX)
-#define _SEGMENT_OVERRIDE_PREFIXES                                             \
+#define SEGMENT_OVERRIDE_PREFIXES_                                             \
     concatenate_as<std::optional<Testing::Helpers::prefix_t>>(                 \
         CS_SEGMENT_OVERRIDE_PREFIX, SS_SEGMENT_OVERRIDE_PREFIX,                \
         DS_SEGMENT_OVERRIDE_PREFIX, ES_SEGMENT_OVERRIDE_PREFIX,                \
         FS_SEGMENT_OVERRIDE_PREFIX, GS_SEGMENT_OVERRIDE_PREFIX)
-#define _BRANCH_PREFIXES                                                       \
+#define BRANCH_PREFIXES_                                                       \
     concatenate_as<std::optional<Testing::Helpers::prefix_t>>(                 \
         BRANCH_NOT_TAKEN_PREFIX, BRANCH_TAKEN_PREFIX)
-#define _STRING_PREFIXES                                                       \
+#define STRING_PREFIXES_                                                       \
     concatenate_as<std::optional<Testing::Helpers::prefix_t>>(REPNZ_PREFIX,    \
                                                               REP_PREFIX)
 
-#define _ADDRESS_SIZE_PREFIXES                                                 \
+#define ADDRESS_SIZE_PREFIXES_                                                 \
     concatenate_as<std::optional<Testing::Helpers::prefix_t>>(                 \
         ADDRESS_SIZE_OVERRIDE_PREFIX)
-#define _OPERAND_SIZE_PREFIXES                                                 \
+#define OPERAND_SIZE_PREFIXES_                                                 \
     concatenate_as<std::optional<Testing::Helpers::prefix_t>>(                 \
         OPERAND_SIZE_OVERRIDE_PREFIX)
 
-#define _ADDRESS_PREFIXES                                                      \
+#define ADDRESS_PREFIXES_                                                      \
     concatinate(                                                               \
         Catch::Generators::as<std::optional<Testing::Helpers::prefix_t>>{},    \
-        _ADDRESS_SIZE_PREFIXES, _SEGMENT_OVERRIDE_PREFIXES)
-#define _OPERAND_PREFIXES                                                      \
+        ADDRESS_SIZE_PREFIXES_, SEGMENT_OVERRIDE_PREFIXES_)
+#define OPERAND_PREFIXES_                                                      \
     concatinate(                                                               \
         Catch::Generators::as<std::optional<Testing::Helpers::prefix_t>>{},    \
-        _OPERAND_SIZE_PREFIXES)
+        OPERAND_SIZE_PREFIXES_)
 
-#define _ALL_RAW_PREFIXES                                                      \
+#define ALL_RAW_PREFIXES_                                                      \
     concatenate_as<std::optional<Testing::Helpers::prefix_t>>(                 \
-        _LOCK_PREFIXES, _SEGMENT_OVERRIDE_PREFIXES, _BRANCH_PREFIXES,          \
-        _STRING_PREFIXES, _ADDRESS_SIZE_PREFIXES, _OPERAND_SIZE_PREFIXES)
+        LOCK_PREFIXES_, SEGMENT_OVERRIDE_PREFIXES_, BRANCH_PREFIXES_,          \
+        STRING_PREFIXES_, ADDRESS_SIZE_PREFIXES_, OPERAND_SIZE_PREFIXES_)
 
-#define _ALL_REX_W_PREFIXES                                                    \
+#define ALL_REX_W_PREFIXES_                                                    \
     concatenate_as<std::optional<Testing::Helpers::prefix_t>>(                 \
         REX_W_PREFIX, REX_WR_PREFIX, REX_WX_PREFIX, REX_WB_PREFIX,             \
         REX_WRX_PREFIX, REX_WRB_PREFIX, REX_WXB_PREFIX, REX_WRXB_PREFIX)
-#define _ALL_REX_R_PREFIXES                                                    \
+#define ALL_REX_R_PREFIXES_                                                    \
     concatenate_as<std::optional<Testing::Helpers::prefix_t>>(                 \
         REX_R_PREFIX, REX_WR_PREFIX, REX_WRX_PREFIX, REX_WRB_PREFIX,           \
         REX_WRXB_PREFIX, REX_RX_PREFIX, REX_RB_PREFIX, REX_RXB_PREFIX)
-#define _ALL_REX_X_PREFIXES                                                    \
+#define ALL_REX_X_PREFIXES_                                                    \
     concatenate_as<std::optional<Testing::Helpers::prefix_t>>(                 \
         REX_X_PREFIX, REX_WX_PREFIX, REX_WRX_PREFIX, REX_WXB_PREFIX,           \
         REX_WRXB_PREFIX, REX_RX_PREFIX, REX_RXB_PREFIX, REX_XB_PREFIX)
-#define _ALL_REX_B_PREFIXES                                                    \
+#define ALL_REX_B_PREFIXES_                                                    \
     concatenate_as<std::optional<Testing::Helpers::prefix_t>>(                 \
         REX_B_PREFIX, REX_WB_PREFIX, REX_WRB_PREFIX, REX_WXB_PREFIX,           \
         REX_WRXB_PREFIX, REX_RB_PREFIX, REX_RXB_PREFIX, REX_XB_PREFIX)
 
-#define _ALL_REX_PREFIXES                                                      \
+#define ALL_REX_PREFIXES_                                                      \
     concatenate_as<std::optional<Testing::Helpers::prefix_t>>(                 \
         REX_PREFIX, REX_W_PREFIX, REX_R_PREFIX, REX_X_PREFIX, REX_B_PREFIX,    \
         REX_WR_PREFIX, REX_WX_PREFIX, REX_WB_PREFIX, REX_WRX_PREFIX,           \
         REX_WRB_PREFIX, REX_WXB_PREFIX, REX_WRXB_PREFIX, REX_RX_PREFIX,        \
         REX_RB_PREFIX, REX_RXB_PREFIX, REX_XB_PREFIX)
 
-#define _IMM8 make_resettable(Catch::Generators::take(1, randomIMM<uint8_t>()))
-#define _IMM16                                                                 \
+#define IMM8_ make_resettable(Catch::Generators::take(1, randomIMM<uint8_t>()))
+#define IMM16_                                                                 \
     make_resettable(Catch::Generators::take(1, randomIMM<uint16_t>()))
-#define _IMM32                                                                 \
+#define IMM32_                                                                 \
     make_resettable(Catch::Generators::take(1, randomIMM<uint32_t>()))
-#define _IMM64                                                                 \
+#define IMM64_                                                                 \
     make_resettable(Catch::Generators::take(1, randomIMM<uint64_t>()))
 
-#define _IMPLIED(val) make_resettable(makeImplied(val))
+#define IMPLIED_(val) make_resettable(makeImplied(val))
 
-#define _SWITCH(...)                                                           \
+#define SWITCH_(...)                                                           \
     std::make_unique<InstructionGenerator::ParameterGeneratorSelectorType>(    \
         __VA_ARGS__)
-#define _OPT(...)                                                              \
+#define OPT_(...)                                                              \
     InstructionGenerator::ParameterGeneratorSelectorType::                     \
         SelectorGeneratorPair {                                                \
         __VA_ARGS__                                                            \
     }
 
-#define _CONDITION(...) __VA_ARGS__
-#define _ON_NEVER                                                              \
-    _CONDITION([](const auto& curParameter, const auto& prefixList,            \
+#define CONDITION_(...) __VA_ARGS__
+#define ON_NEVER_                                                              \
+    CONDITION_([](const auto& curParameter, const auto& prefixList,            \
                   const auto& environment) -> bool { return false; })
-#define _ON_ALWAYS                                                             \
-    _CONDITION([](const auto& curParameter, const auto& prefixList,            \
+#define ON_ALWAYS_                                                             \
+    CONDITION_([](const auto& curParameter, const auto& prefixList,            \
                   const auto& environment) -> bool { return true; })
-#define _ON_X16                                                                \
-    _CONDITION([](const auto& curParameter, const auto& prefixList,            \
+#define ON_X16_                                                                \
+    CONDITION_([](const auto& curParameter, const auto& prefixList,            \
                   const auto& environment) -> bool {                           \
         if (environment._defaultAdressMode ==                                  \
                 X86Environment::X86AddressMode::X16 &&                         \
@@ -190,8 +190,8 @@ using parameter_generator =
         return false;                                                          \
     })
 
-#define _ON_X32                                                                \
-    _CONDITION([](const auto& curParameter, const auto& prefixList,            \
+#define ON_X32_                                                                \
+    CONDITION_([](const auto& curParameter, const auto& prefixList,            \
                   const auto& environment) -> bool {                           \
         if (environment._defaultAdressMode ==                                  \
                 X86Environment::X86AddressMode::X16 &&                         \
@@ -225,8 +225,8 @@ using parameter_generator =
             return true;                                                       \
         return false;                                                          \
     })
-#define _ON_X64                                                                \
-    _CONDITION([](const auto& curParameter, const auto& prefixList,            \
+#define ON_X64_                                                                \
+    CONDITION_([](const auto& curParameter, const auto& prefixList,            \
                   const auto& environment) -> bool {                           \
         if (environment._defaultAdressMode ==                                  \
                 X86Environment::X86AddressMode::X64 &&                         \
@@ -250,19 +250,19 @@ using parameter_generator =
         return false;                                                          \
     })
 
-#define _IF_X64_DISASSEMBLER(disassembler, ...)                                \
+#define IF_X64_DISASSEMBLER_(disassembler, ...)                                \
     [disassembler_env]() {                                                     \
         if (disassembler_env._defaultInstructionMode ==                        \
             X86Environment::X86InstructionMode::X64)                           \
             return __VA_ARGS__;                                                \
         else                                                                   \
             return concatenate_as<std::optional<Testing::Helpers::prefix_t>>(  \
-                _NO_PREFIX);                                                   \
+                NO_PREFIX_);                                                   \
     }()
 
-#define _INSTRUCTION(...) __VA_ARGS__
+#define INSTRUCTION_(...) __VA_ARGS__
 
-#define _DECODE_INSTRUCTION(disassembler, ...)                                 \
+#define DECODE_INSTRUCTION_(disassembler, ...)                                 \
     Testing::Helpers::Instruction generated_instruction =                      \
         GENERATE_COPY(generate_instruction(__VA_ARGS__, disassembler##_env));  \
     INFO(fmt::format("{}", disassembler##_env));                               \

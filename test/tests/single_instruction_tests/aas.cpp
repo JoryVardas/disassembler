@@ -4,8 +4,8 @@
 
 TEST_CASE("AAS", "[x86][legacy]") {
     CREATE_LEGACY_DISASSEMBLER(disassembler);
-    _DECODE_INSTRUCTION(disassembler,
-                        _INSTRUCTION("AAS",
-                                     _PREFIXES(_NO_PREFIX, _ALL_RAW_PREFIXES),
+    DECODE_INSTRUCTION_(disassembler,
+                        INSTRUCTION_("AAS",
+                                     PREFIXES_(NO_PREFIX_, ALL_RAW_PREFIXES_),
                                      OPCODE(0x3F)));
 }

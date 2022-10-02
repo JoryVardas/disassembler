@@ -4,8 +4,8 @@
 
 TEST_CASE("AAA", "[legacy]") {
     CREATE_LEGACY_DISASSEMBLER(disassembler);
-    _DECODE_INSTRUCTION(disassembler,
-                        _INSTRUCTION("AAA",
-                                     _PREFIXES(_NO_PREFIX, _ALL_RAW_PREFIXES),
+    DECODE_INSTRUCTION_(disassembler,
+                        INSTRUCTION_("AAA",
+                                     PREFIXES_(NO_PREFIX_, ALL_RAW_PREFIXES_),
                                      OPCODE(0x37)));
 }

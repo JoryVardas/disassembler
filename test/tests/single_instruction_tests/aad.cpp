@@ -4,8 +4,8 @@
 
 TEST_CASE("AAD", "[x86][legacy]") {
     CREATE_LEGACY_DISASSEMBLER(disassembler);
-    _DECODE_INSTRUCTION(disassembler,
-                        _INSTRUCTION("AAD",
-                                     _PREFIXES(_NO_PREFIX, _ALL_RAW_PREFIXES),
-                                     OPCODE(0xD5), _IMM8));
+    DECODE_INSTRUCTION_(disassembler,
+                        INSTRUCTION_("AAD",
+                                     PREFIXES_(NO_PREFIX_, ALL_RAW_PREFIXES_),
+                                     OPCODE(0xD5), IMM8_));
 }
