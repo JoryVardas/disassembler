@@ -5,4 +5,5 @@ target_sources(Disassembler-test PRIVATE
         generators/x86Environment.cpp
         endian.cpp
         imm.cpp
+        cartesianProductView.cpp
         )
