@@ -39,51 +39,57 @@ prefix_bytes prefixesToBytes(Ts... args) {
 };
 } // namespace Testing::Helpers
 
-#define INTERAL_DEFINE_PREFIX(name, prefix, group)                             \
-    Testing::Helpers::prefix_t {                                               \
-#name, static_cast < std::byte>(prefix),                               \
+#define INTERNAL_DEFINE_PREFIX(varname, name, prefix, group)                   \
+    const Testing::Helpers::prefix_t varname {                                 \
+#name, static_cast < std::byte>(X86InstructionRawPrefix::prefix),      \
             Testing::Helpers::PrefixGroup::group                               \
     }
+#define INTERNAL_DEFINE_RAW_PREFIX(varname, name, prefix, group)               \
+    const Testing::Helpers::prefix_t varname {                                 \
+#name, std::byte{prefix }, Testing::Helpers::PrefixGroup::group        \
+    }
 
-#define LOCK_PREFIX                                                            \
-    INTERAL_DEFINE_PREFIX(LOCK, X86InstructionRawPrefix::LOCK, Group1)
-#define CS_SEGMENT_OVERRIDE_PREFIX                                             \
-    INTERAL_DEFINE_PREFIX(CS, X86InstructionRawPrefix::CS_SEGMENT_OVERRIDE,    \
-                          Group2)
-#define SS_SEGMENT_OVERRIDE_PREFIX                                             \
-    INTERAL_DEFINE_PREFIX(SS, X86InstructionRawPrefix::SS_SEGMENT_OVERRIDE,    \
-                          Group2)
-#define DS_SEGMENT_OVERRIDE_PREFIX                                             \
-    INTERAL_DEFINE_PREFIX(DS, X86InstructionRawPrefix::DS_SEGMENT_OVERRIDE,    \
-                          Group2)
-#define ES_SEGMENT_OVERRIDE_PREFIX                                             \
-    INTERAL_DEFINE_PREFIX(ES_SEGMENT_OVERRIDE,                                 \
-                          X86InstructionRawPrefix::ES_SEGMENT_OVERRIDE,        \
-                          Group2)
-#define FS_SEGMENT_OVERRIDE_PREFIX                                             \
-    INTERAL_DEFINE_PREFIX(FS, X86InstructionRawPrefix::FS_SEGMENT_OVERRIDE,    \
-                          Group2)
-#define GS_SEGMENT_OVERRIDE_PREFIX                                             \
-    INTERAL_DEFINE_PREFIX(GS, X86InstructionRawPrefix::GS_SEGMENT_OVERRIDE,    \
-                          Group2)
-#define BRANCH_NOT_TAKEN_PREFIX                                                \
-    INTERAL_DEFINE_PREFIX(BRANCH_NOT_TAKEN,                                    \
-                          X86InstructionRawPrefix::BRANCH_NOT_TAKEN, Group2)
-#define BRANCH_TAKEN_PREFIX                                                    \
-    INTERAL_DEFINE_PREFIX(BRANCH_TAKEN, X86InstructionRawPrefix::BRANCH_TAKEN, \
-                          Group2)
-#define REPNZ_PREFIX                                                           \
-    INTERAL_DEFINE_PREFIX(REPNZ, X86InstructionRawPrefix::REPNZ, Group1)
-#define REP_PREFIX                                                             \
-    INTERAL_DEFINE_PREFIX(REP, X86InstructionRawPrefix::REP, Group1)
-#define ADDRESS_SIZE_OVERRIDE_PREFIX                                           \
-    INTERAL_DEFINE_PREFIX(ADDRESS_SIZE_OVERRIDE,                               \
-                          X86InstructionRawPrefix::ADDRESS_SIZE_OVERRIDE,      \
-                          Group4)
-#define OPERAND_SIZE_OVERRIDE_PREFIX                                           \
-    INTERAL_DEFINE_PREFIX(OPERAND_SIZE_OVERRIDE,                               \
-                          X86InstructionRawPrefix::OPERAND_SIZE_OVERRIDE,      \
-                          Group3)
+namespace {
+INTERNAL_DEFINE_PREFIX(LOCK_PREFIX, LOCK, LOCK, Group1);
+INTERNAL_DEFINE_PREFIX(CS_SEGMENT_OVERRIDE_PREFIX, CS, CS_SEGMENT_OVERRIDE,
+                       Group1);
+INTERNAL_DEFINE_PREFIX(SS_SEGMENT_OVERRIDE_PREFIX, SS, SS_SEGMENT_OVERRIDE,
+                       Group2);
+INTERNAL_DEFINE_PREFIX(DS_SEGMENT_OVERRIDE_PREFIX, DS, DS_SEGMENT_OVERRIDE,
+                       Group2);
+INTERNAL_DEFINE_PREFIX(ES_SEGMENT_OVERRIDE_PREFIX, ES, ES_SEGMENT_OVERRIDE,
+                       Group2);
+INTERNAL_DEFINE_PREFIX(FS_SEGMENT_OVERRIDE_PREFIX, FS, FS_SEGMENT_OVERRIDE,
+                       Group2);
+INTERNAL_DEFINE_PREFIX(GS_SEGMENT_OVERRIDE_PREFIX, GS, GS_SEGMENT_OVERRIDE,
+                       Group2);
+INTERNAL_DEFINE_PREFIX(BRANCH_NOT_TAKEN_PREFIX, BRANCH_NOT_TAKEN,
+                       BRANCH_NOT_TAKEN, Group2);
+INTERNAL_DEFINE_PREFIX(BRANCH_TAKEN_PREFIX, BRANCH_TAKEN, BRANCH_TAKEN, Group2);
+INTERNAL_DEFINE_PREFIX(REPNZ_PREFIX, REPNZ, REPNZ, Group1);
+INTERNAL_DEFINE_PREFIX(REP_PREFIX, REP, REP, Group1);
+INTERNAL_DEFINE_PREFIX(ADDRESS_SIZE_OVERRIDE_PREFIX, ADDRESS_SIZE_OVERRIDE,
+                       ADDRESS_SIZE_OVERRIDE, Group4);
+INTERNAL_DEFINE_PREFIX(OPERAND_SIZE_OVERRIDE_PREFIX, OPERAND_SIZE_OVERRIDE,
+                       OPERAND_SIZE_OVERRIDE, Group3);
+
+INTERNAL_DEFINE_RAW_PREFIX(REX_PREFIX, REX, 0x40, Extended);
+INTERNAL_DEFINE_RAW_PREFIX(REX_W_PREFIX, REX_W, 0x48, Extended);
+INTERNAL_DEFINE_RAW_PREFIX(REX_R_PREFIX, REX_R, 0x44, Extended);
+INTERNAL_DEFINE_RAW_PREFIX(REX_X_PREFIX, REX_X, 0x42, Extended);
+INTERNAL_DEFINE_RAW_PREFIX(REX_B_PREFIX, REX_B, 0x41, Extended);
+INTERNAL_DEFINE_RAW_PREFIX(REX_WR_PREFIX, REX_WR, 0x4C, Extended);
+INTERNAL_DEFINE_RAW_PREFIX(REX_WX_PREFIX, REX_WX, 0x4A, Extended);
+INTERNAL_DEFINE_RAW_PREFIX(REX_WB_PREFIX, REX_WB, 0x49, Extended);
+INTERNAL_DEFINE_RAW_PREFIX(REX_WRX_PREFIX, REX_WRX, 0x4E, Extended);
+INTERNAL_DEFINE_RAW_PREFIX(REX_WRB_PREFIX, REX_WRB, 0x4D, Extended);
+INTERNAL_DEFINE_RAW_PREFIX(REX_WXB_PREFIX, REX_WXB, 0x4B, Extended);
+INTERNAL_DEFINE_RAW_PREFIX(REX_WRXB_PREFIX, REX_WRXB, 0x4F, Extended);
+INTERNAL_DEFINE_RAW_PREFIX(REX_RX_PREFIX, REX_RX, 0x46, Extended);
+INTERNAL_DEFINE_RAW_PREFIX(REX_RB_PREFIX, REX_RB, 0x45, Extended);
+INTERNAL_DEFINE_RAW_PREFIX(REX_RXB_PREFIX, REX_RXB, 0x47, Extended);
+INTERNAL_DEFINE_RAW_PREFIX(REX_XB_PREFIX, REX_XB, 0x43, Extended);
+} // namespace
 
 #define LOCK_PREFIXES concatinate(LOCK_PREFIX)
 #define SEGMENT_OVERRIDE_PREFIXES                                              \
@@ -104,24 +110,6 @@ prefix_bytes prefixesToBytes(Ts... args) {
 #define ALL_PREFIXES                                                           \
     concatinate(LOCK_PREFIXES, SEGMENT_OVERRIDE_PREFIXES, BRANCH_PREFIXES,     \
                 STRING_PREFIXES, ADDRESS_SIZE_PREFIXES, OPERAND_SIZE_PREFIXES)
-
-#define REX_PREFIX INTERAL_DEFINE_PREFIX(REX, std::byte{0x40}, Extended)
-#define REX_W_PREFIX INTERAL_DEFINE_PREFIX(REX_W, std::byte{0x48}, Extended)
-#define REX_R_PREFIX INTERAL_DEFINE_PREFIX(REX_R, std::byte{0x44}, Extended)
-#define REX_X_PREFIX INTERAL_DEFINE_PREFIX(REX_X, std::byte{0x42}, Extended)
-#define REX_B_PREFIX INTERAL_DEFINE_PREFIX(REX_B, std::byte{0x41}, Extended)
-#define REX_WR_PREFIX INTERAL_DEFINE_PREFIX(REX_WR, std::byte{0x4C}, Extended)
-#define REX_WX_PREFIX INTERAL_DEFINE_PREFIX(REX_WX, std::byte{0x4A}, Extended)
-#define REX_WB_PREFIX INTERAL_DEFINE_PREFIX(REX_WB, std::byte{0x49}, Extended)
-#define REX_WRX_PREFIX INTERAL_DEFINE_PREFIX(REX_WRX, std::byte{0x4E}, Extended)
-#define REX_WRB_PREFIX INTERAL_DEFINE_PREFIX(REX_WRB, std::byte{0x4D}, Extended)
-#define REX_WXB_PREFIX INTERAL_DEFINE_PREFIX(REX_WXB, std::byte{0x4B}, Extended)
-#define REX_WRXB_PREFIX                                                        \
-    INTERAL_DEFINE_PREFIX(REX_WRXB, std::byte{0x4F}, Extended)
-#define REX_RX_PREFIX INTERAL_DEFINE_PREFIX(REX_RX, std::byte{0x46}, Extended)
-#define REX_RB_PREFIX INTERAL_DEFINE_PREFIX(REX_RB, std::byte{0x45}, Extended)
-#define REX_RXB_PREFIX INTERAL_DEFINE_PREFIX(REX_RXB, std::byte{0x47}, Extended)
-#define REX_XB_PREFIX INTERAL_DEFINE_PREFIX(REX_XB, std::byte{0x43}, Extended)
 
 #define ALL_REX_W_PREFIXES                                                     \
     concatinate(REX_W_PREFIX, REX_WR_PREFIX, REX_WX_PREFIX, REX_WB_PREFIX,     \
