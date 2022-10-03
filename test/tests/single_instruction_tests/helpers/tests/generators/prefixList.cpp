@@ -12,6 +12,27 @@ TEST_CASE("prefixlistGenerator", "[helper test][generator]") {
         REQUIRE(gen.get() == PrefixList_t{LOCK_PREFIX});
         REQUIRE(!gen.next());
     }
+    SECTION("one prefix from generator") {
+        auto gen = generatePrefixList(Catch::Generators::value(LOCK_PREFIX));
+        REQUIRE(gen.get().size() == 1);
+        REQUIRE(gen.get() == PrefixList_t{LOCK_PREFIX});
+        REQUIRE(!gen.next());
+    }
+    SECTION("one prefix from optional generator") {
+        auto gen = generatePrefixList(
+            std::optional{Catch::Generators::value(LOCK_PREFIX)});
+        REQUIRE(gen.get().size() == 1);
+        REQUIRE(gen.get() == PrefixList_t{LOCK_PREFIX});
+        REQUIRE(!gen.next());
+    }
+    SECTION("one prefix with additional optional generator not set") {
+        auto gen = generatePrefixList(
+            LOCK_PREFIX, std::optional<Catch::Generators::GeneratorWrapper<
+                             Testing::Helpers::prefix_t>>{std::nullopt});
+        REQUIRE(gen.get().size() == 1);
+        REQUIRE(gen.get() == PrefixList_t{LOCK_PREFIX});
+        REQUIRE(!gen.next());
+    }
     SECTION("three prefixes from different groups, including a REX prefix") {
         auto gen = generatePrefixList(LOCK_PREFIX, OPERAND_SIZE_OVERRIDE_PREFIX,
                                       REX_PREFIX);

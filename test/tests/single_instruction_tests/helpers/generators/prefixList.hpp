@@ -76,6 +76,13 @@ class PrefixListGenerator
             addPrefix(generator.get());
         } while (generator.next());
     };
+    // This overload is allows an optional generator to be passed, this is
+    // useful when the prefix list is conditional on some other value.
+    void addPrefix(std::optional<Catch::Generators::GeneratorWrapper<prefix_t>>&
+                       optionalGenerator) {
+        if (optionalGenerator.has_value())
+            addPrefix(optionalGenerator.value());
+    }
     void addPrefix(const prefix_t& prefix) {
         // Add the prefix to its respective groups
         switch (prefix.group) {
