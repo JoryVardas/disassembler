@@ -34,7 +34,7 @@ class PrefixListGenerator
 
   public:
     template <typename... Ts>
-    PrefixListGenerator(Ts&... prefixes)
+    PrefixListGenerator(Ts&&... prefixes)
         : productView(group1Prefixes, group2Prefixes, group3Prefixes,
                       group4Prefixes, extendedPrefixes),
           productViewIterator(productView.end()) {
@@ -153,10 +153,11 @@ class PrefixListGenerator
 namespace {
 template <typename... Ts>
 Catch::Generators::GeneratorWrapper<std::vector<Testing::Helpers::prefix_t>>
-generatePrefixList(Ts... prefixes) {
+generatePrefixList(Ts&&... prefixes) {
     return Catch::Generators::GeneratorWrapper<
         std::vector<Testing::Helpers::prefix_t>>(
-        Catch::Detail::make_unique<PrefixListGenerator>(prefixes...));
+        Catch::Detail::make_unique<PrefixListGenerator>(
+            std::forward<Ts>(prefixes)...));
 }
 } // namespace
 } // namespace Testing::Helpers::Generators

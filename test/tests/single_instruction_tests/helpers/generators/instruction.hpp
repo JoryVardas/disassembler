@@ -15,7 +15,7 @@ namespace Testing::Helpers::Generators {
 
 class InstructionGenerator : public Catch::Generators::IGenerator<Instruction> {
   public:
-    using PrefixList = std::vector<std::optional<prefix_t>>;
+    using PrefixList = std::vector<prefix_t>;
     using PrefixListGenerator = Catch::Generators::GeneratorWrapper<PrefixList>;
     using ParameterGenerator = std::unique_ptr<ResettableGenerator<Parameter>>;
     using ParameterGeneratorSelectorType =

@@ -22,6 +22,7 @@
 #include "helpers/generators/implied.hpp"
 #include "helpers/generators/instruction.hpp"
 #include "helpers/generators/not_in.hpp"
+#include "helpers/generators/prefixList.hpp"
 #include "helpers/generators/resettable.hpp"
 #include "helpers/generators/selector.hpp"
 #include "helpers/generators/x86Environment.hpp"
@@ -71,72 +72,74 @@ Testing::Helpers::opcode_bytes makeOpcode(Ts... args) {
 using parameter_generator =
     std::unique_ptr<ResettableGenerator<Testing::Helpers::Parameter>>;
 
-#define PREFIXES_(...)                                                         \
-    Catch::Generators::chunk(                                                  \
-        1, concatenate_as<std::optional<Testing::Helpers::prefix_t>>(          \
-               __VA_ARGS__))
+namespace PREFIXES_DETAIL_ {
+using namespace Testing::Helpers;
+using PrefixList = std::vector<prefix_t>;
+namespace {
+auto makePrefixListGenerator() {
+    return Catch::Generators::value(PrefixList{});
+}
+// If we are passed a prefix list then it must be the NO_PREFIX_ value, so
+// return a generator for it.
+auto makePrefixListGenerator(PrefixList noPrefix) {
+    return Catch::Generators::value(PrefixList{});
+}
+template <typename... Ts>
+    requires std::negation_v<
+        std::is_same<std::tuple_element_t<0, std::tuple<Ts...>>, PrefixList>>
+auto makePrefixList(Ts... prefixList) {
+    return generatePrefixList(prefixList...);
+}
+template <typename T, typename... Ts>
+    requires std::is_same_v<T, PrefixList>
+auto makePrefixList(T noPrefix, Ts... prefixList) {
+    return concatenate_as<PrefixList>(Catch::Generators::value(PrefixList{}),
+                                      generatePrefixList(prefixList...));
+}
+} // namespace
+} // namespace PREFIXES_DETAIL_
+
+#define PREFIXES_(...) PREFIXES_DETAIL_::makePrefixList(__VA_ARGS__)
 
 #define NO_PREFIX_                                                             \
-    std::optional<Testing::Helpers::prefix_t> { std::nullopt }
+    std::vector<Testing::Helpers::prefix_t> {}
 
-#define LOCK_PREFIXES_                                                         \
-    concatenate_as<std::optional<Testing::Helpers::prefix_t>>(LOCK_PREFIX)
+#define LOCK_PREFIXES_ LOCK_PREFIX
 #define SEGMENT_OVERRIDE_PREFIXES_                                             \
-    concatenate_as<std::optional<Testing::Helpers::prefix_t>>(                 \
-        CS_SEGMENT_OVERRIDE_PREFIX, SS_SEGMENT_OVERRIDE_PREFIX,                \
+    CS_SEGMENT_OVERRIDE_PREFIX, SS_SEGMENT_OVERRIDE_PREFIX,                    \
         DS_SEGMENT_OVERRIDE_PREFIX, ES_SEGMENT_OVERRIDE_PREFIX,                \
-        FS_SEGMENT_OVERRIDE_PREFIX, GS_SEGMENT_OVERRIDE_PREFIX)
-#define BRANCH_PREFIXES_                                                       \
-    concatenate_as<std::optional<Testing::Helpers::prefix_t>>(                 \
-        BRANCH_NOT_TAKEN_PREFIX, BRANCH_TAKEN_PREFIX)
-#define STRING_PREFIXES_                                                       \
-    concatenate_as<std::optional<Testing::Helpers::prefix_t>>(REPNZ_PREFIX,    \
-                                                              REP_PREFIX)
+        FS_SEGMENT_OVERRIDE_PREFIX, GS_SEGMENT_OVERRIDE_PREFIX
+#define BRANCH_PREFIXES_ BRANCH_NOT_TAKEN_PREFIX, BRANCH_TAKEN_PREFIX
+#define STRING_PREFIXES_ REPNZ_PREFIX, REP_PREFIX
 
-#define ADDRESS_SIZE_PREFIXES_                                                 \
-    concatenate_as<std::optional<Testing::Helpers::prefix_t>>(                 \
-        ADDRESS_SIZE_OVERRIDE_PREFIX)
-#define OPERAND_SIZE_PREFIXES_                                                 \
-    concatenate_as<std::optional<Testing::Helpers::prefix_t>>(                 \
-        OPERAND_SIZE_OVERRIDE_PREFIX)
+#define ADDRESS_SIZE_PREFIXES_ ADDRESS_SIZE_OVERRIDE_PREFIX
+#define OPERAND_SIZE_PREFIXES_ OPERAND_SIZE_OVERRIDE_PREFIX
 
-#define ADDRESS_PREFIXES_                                                      \
-    concatinate(                                                               \
-        Catch::Generators::as<std::optional<Testing::Helpers::prefix_t>>{},    \
-        ADDRESS_SIZE_PREFIXES_, SEGMENT_OVERRIDE_PREFIXES_)
-#define OPERAND_PREFIXES_                                                      \
-    concatinate(                                                               \
-        Catch::Generators::as<std::optional<Testing::Helpers::prefix_t>>{},    \
-        OPERAND_SIZE_PREFIXES_)
+#define ADDRESS_PREFIXES_ ADDRESS_SIZE_PREFIXES_, SEGMENT_OVERRIDE_PREFIXES_
+#define OPERAND_PREFIXES_ OPERAND_SIZE_PREFIXES_
 
 #define ALL_RAW_PREFIXES_                                                      \
-    concatenate_as<std::optional<Testing::Helpers::prefix_t>>(                 \
-        LOCK_PREFIXES_, SEGMENT_OVERRIDE_PREFIXES_, BRANCH_PREFIXES_,          \
-        STRING_PREFIXES_, ADDRESS_SIZE_PREFIXES_, OPERAND_SIZE_PREFIXES_)
+    LOCK_PREFIXES_, SEGMENT_OVERRIDE_PREFIXES_, BRANCH_PREFIXES_,              \
+        STRING_PREFIXES_, ADDRESS_SIZE_PREFIXES_, OPERAND_SIZE_PREFIXES_
 
 #define ALL_REX_W_PREFIXES_                                                    \
-    concatenate_as<std::optional<Testing::Helpers::prefix_t>>(                 \
-        REX_W_PREFIX, REX_WR_PREFIX, REX_WX_PREFIX, REX_WB_PREFIX,             \
-        REX_WRX_PREFIX, REX_WRB_PREFIX, REX_WXB_PREFIX, REX_WRXB_PREFIX)
+    REX_W_PREFIX, REX_WR_PREFIX, REX_WX_PREFIX, REX_WB_PREFIX, REX_WRX_PREFIX, \
+        REX_WRB_PREFIX, REX_WXB_PREFIX, REX_WRXB_PREFIX
 #define ALL_REX_R_PREFIXES_                                                    \
-    concatenate_as<std::optional<Testing::Helpers::prefix_t>>(                 \
-        REX_R_PREFIX, REX_WR_PREFIX, REX_WRX_PREFIX, REX_WRB_PREFIX,           \
-        REX_WRXB_PREFIX, REX_RX_PREFIX, REX_RB_PREFIX, REX_RXB_PREFIX)
+    REX_R_PREFIX, REX_WR_PREFIX, REX_WRX_PREFIX, REX_WRB_PREFIX,               \
+        REX_WRXB_PREFIX, REX_RX_PREFIX, REX_RB_PREFIX, REX_RXB_PREFIX
 #define ALL_REX_X_PREFIXES_                                                    \
-    concatenate_as<std::optional<Testing::Helpers::prefix_t>>(                 \
-        REX_X_PREFIX, REX_WX_PREFIX, REX_WRX_PREFIX, REX_WXB_PREFIX,           \
-        REX_WRXB_PREFIX, REX_RX_PREFIX, REX_RXB_PREFIX, REX_XB_PREFIX)
+    REX_X_PREFIX, REX_WX_PREFIX, REX_WRX_PREFIX, REX_WXB_PREFIX,               \
+        REX_WRXB_PREFIX, REX_RX_PREFIX, REX_RXB_PREFIX, REX_XB_PREFIX
 #define ALL_REX_B_PREFIXES_                                                    \
-    concatenate_as<std::optional<Testing::Helpers::prefix_t>>(                 \
-        REX_B_PREFIX, REX_WB_PREFIX, REX_WRB_PREFIX, REX_WXB_PREFIX,           \
-        REX_WRXB_PREFIX, REX_RB_PREFIX, REX_RXB_PREFIX, REX_XB_PREFIX)
+    REX_B_PREFIX, REX_WB_PREFIX, REX_WRB_PREFIX, REX_WXB_PREFIX,               \
+        REX_WRXB_PREFIX, REX_RB_PREFIX, REX_RXB_PREFIX, REX_XB_PREFIX
 
 #define ALL_REX_PREFIXES_                                                      \
-    concatenate_as<std::optional<Testing::Helpers::prefix_t>>(                 \
-        REX_PREFIX, REX_W_PREFIX, REX_R_PREFIX, REX_X_PREFIX, REX_B_PREFIX,    \
+    REX_PREFIX, REX_W_PREFIX, REX_R_PREFIX, REX_X_PREFIX, REX_B_PREFIX,        \
         REX_WR_PREFIX, REX_WX_PREFIX, REX_WB_PREFIX, REX_WRX_PREFIX,           \
         REX_WRB_PREFIX, REX_WXB_PREFIX, REX_WRXB_PREFIX, REX_RX_PREFIX,        \
-        REX_RB_PREFIX, REX_RXB_PREFIX, REX_XB_PREFIX)
+        REX_RB_PREFIX, REX_RXB_PREFIX, REX_XB_PREFIX
 
 #define IMM8_ make_resettable(Catch::Generators::take(1, randomIMM<uint8_t>()))
 #define IMM16_                                                                 \
@@ -242,22 +245,21 @@ using parameter_generator =
                 X86Environment::X86InstructionMode::X64 &&                     \
             curParameter.isAffectedByOperandSize() &&                          \
             std::ranges::count_if(prefixList, [](const auto& prefix) {         \
-                return prefix.has_value() &&                                   \
-                       ((prefix.value().value & std::byte{0x48}) ==            \
-                        std::byte{0x48});                                      \
+                return ((prefix.value & std::byte{0x48}) == std::byte{0x48});  \
             }) != 0)                                                           \
             return true;                                                       \
         return false;                                                          \
     })
 
 #define IF_X64_DISASSEMBLER_(disassembler, ...)                                \
-    [disassembler_env]() {                                                     \
+    [disassembler_env]()                                                       \
+        -> std::optional<                                                      \
+            Catch::Generators::GeneratorWrapper<Testing::Helpers::prefix_t>> { \
         if (disassembler_env._defaultInstructionMode ==                        \
             X86Environment::X86InstructionMode::X64)                           \
-            return __VA_ARGS__;                                                \
+            return concatenate_as<Testing::Helpers::prefix_t>(__VA_ARGS__);    \
         else                                                                   \
-            return concatenate_as<std::optional<Testing::Helpers::prefix_t>>(  \
-                NO_PREFIX_);                                                   \
+            return std::nullopt;                                               \
     }()
 
 #define INSTRUCTION_(...) __VA_ARGS__

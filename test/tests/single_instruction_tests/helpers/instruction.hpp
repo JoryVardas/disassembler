@@ -15,42 +15,33 @@ struct Instruction {
     Instruction(Instruction&&) = default;
     ~Instruction() = default;
 
-    Instruction(std::string_view name,
-                std::vector<std::optional<prefix_t>> prefixes,
+    Instruction(std::string_view name, std::vector<prefix_t> prefixes,
                 opcode_bytes& opcode) {
         for (const auto prefix : prefixes) {
-            if (prefix) {
-                _bytes.push_back(prefix.value().value);
-                _prefixList.push_back(prefix.value());
-            }
+            _bytes.push_back(prefix.value);
+            _prefixList.push_back(prefix);
         }
         _str = fmt::format("{}", name);
         std::ranges::copy(opcode, std::back_inserter(_bytes));
     }
-    Instruction(std::string_view name,
-                std::vector<std::optional<prefix_t>> prefixes,
+    Instruction(std::string_view name, std::vector<prefix_t> prefixes,
                 opcode_bytes& opcode, Parameter op1,
                 std::endian outputEndianness) {
         for (const auto prefix : prefixes) {
-            if (prefix) {
-                _bytes.push_back(prefix.value().value);
-                _prefixList.push_back(prefix.value());
-            }
+            _bytes.push_back(prefix.value);
+            _prefixList.push_back(prefix);
         }
         _str = fmt::format("{} {}", name, op1.toString(_prefixList));
         std::ranges::copy(opcode, std::back_inserter(_bytes));
         std::ranges::copy(getAllParameterBytes(outputEndianness, op1),
                           std::back_inserter(_bytes));
     }
-    Instruction(std::string_view name,
-                std::vector<std::optional<prefix_t>> prefixes,
+    Instruction(std::string_view name, std::vector<prefix_t> prefixes,
                 opcode_bytes& opcode, Parameter op1, Parameter op2,
                 std::endian outputEndianness) {
         for (const auto prefix : prefixes) {
-            if (prefix) {
-                _bytes.push_back(prefix.value().value);
-                _prefixList.push_back(prefix.value());
-            }
+            _bytes.push_back(prefix.value);
+            _prefixList.push_back(prefix);
         }
         _str = fmt::format("{} {}, {}", name, op1.toString(_prefixList),
                            op2.toString(_prefixList));
@@ -58,15 +49,12 @@ struct Instruction {
         std::ranges::copy(getAllParameterBytes(outputEndianness, op1, op2),
                           std::back_inserter(_bytes));
     }
-    Instruction(std::string_view name,
-                std::vector<std::optional<prefix_t>> prefixes,
+    Instruction(std::string_view name, std::vector<prefix_t> prefixes,
                 opcode_bytes& opcode, Parameter op1, Parameter op2,
                 Parameter op3, std::endian outputEndianness) {
         for (const auto prefix : prefixes) {
-            if (prefix) {
-                _bytes.push_back(prefix.value().value);
-                _prefixList.push_back(prefix.value());
-            }
+            _bytes.push_back(prefix.value);
+            _prefixList.push_back(prefix);
         }
         _str =
             fmt::format("{} {}, {}, {}", name, op1.toString(_prefixList),
@@ -75,15 +63,12 @@ struct Instruction {
         std::ranges::copy(getAllParameterBytes(outputEndianness, op1, op2, op3),
                           std::back_inserter(_bytes));
     }
-    Instruction(std::string_view name,
-                std::vector<std::optional<prefix_t>> prefixes,
+    Instruction(std::string_view name, std::vector<prefix_t> prefixes,
                 opcode_bytes& opcode, Parameter op1, Parameter op2,
                 Parameter op3, Parameter op4, std::endian outputEndianness) {
         for (const auto prefix : prefixes) {
-            if (prefix) {
-                _bytes.push_back(prefix.value().value);
-                _prefixList.push_back(prefix.value());
-            }
+            _bytes.push_back(prefix.value);
+            _prefixList.push_back(prefix);
         }
         _str = fmt::format("{} {}, {}, {}, {}", name, op1.toString(_prefixList),
                            op2.toString(_prefixList), op3.toString(_prefixList),
