@@ -4,9 +4,9 @@
 #include <algorithm>
 #include <catch2/generators/catch_generators.hpp>
 #include <concepts>
+#include <range/v3/view/cartesian_product.hpp>
 #include <ranges>
 
-#include "../cartesianProductView.hpp"
 #include "../prefix.h"
 #include "resettable.hpp"
 
@@ -23,30 +23,26 @@ class PrefixListGenerator
     optionalPrefixVector group4Prefixes = {{std::nullopt}};
     optionalPrefixVector extendedPrefixes = {{std::nullopt}};
 
-    CartesianProductView<optionalPrefixVector, optionalPrefixVector,
-                         optionalPrefixVector, optionalPrefixVector,
-                         optionalPrefixVector>
-        productView;
+    decltype(ranges::views::cartesian_product(group1Prefixes, group2Prefixes,
+                                              group3Prefixes, group4Prefixes,
+                                              extendedPrefixes)) productView;
+
     decltype(productView.begin()) productViewIterator;
     int permutationIndex = 0;
     int permutationIndexWrapValue = 0;
     prefixVector currentValue;
 
   public:
-    template <typename... Ts>
-    PrefixListGenerator(Ts&&... prefixes)
-        : productView(group1Prefixes, group2Prefixes, group3Prefixes,
-                      group4Prefixes, extendedPrefixes),
-          productViewIterator(productView.end()) {
+    template <typename... Ts> PrefixListGenerator(Ts&&... prefixes) {
         // add each prefix to the generator.
         (addPrefix(prefixes), ...);
 
         // The initial value for productView was set, but only contains the
         // initial prefix vectors. Now that we have added the prefixes to them
         // we need to reassign the product view.
-        productView =
-            CartesianProductView{group1Prefixes, group2Prefixes, group3Prefixes,
-                                 group4Prefixes, extendedPrefixes};
+        productView = ranges::views::cartesian_product(
+            group1Prefixes, group2Prefixes, group3Prefixes, group4Prefixes,
+            extendedPrefixes);
         productViewIterator = productView.begin();
 
         // Calculate the permutation wrap value

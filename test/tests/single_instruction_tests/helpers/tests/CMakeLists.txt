@@ -6,5 +6,4 @@ target_sources(Disassembler-test PRIVATE
         generators/prefixList.cpp
         endian.cpp
         imm.cpp
-        cartesianProductView.cpp
         )
