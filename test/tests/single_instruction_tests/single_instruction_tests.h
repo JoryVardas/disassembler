@@ -154,6 +154,15 @@ auto makePrefixList(T noPrefix, Ts... prefixList) {
 #define SWITCH_(...)                                                           \
     std::make_unique<InstructionGenerator::ParameterGeneratorSelectorType>(    \
         __VA_ARGS__)
+#define IF_(condition, true_, false_)                                          \
+    std::make_unique<InstructionGenerator::ParameterGeneratorSelectorType>(    \
+        OPT_(condition, true_), OPT_(IF__NOT(condition), false_))
+#define IF__NOT(condition)                                                     \
+    [](const auto& curParameter, const auto& prefixList,                       \
+       const auto& environment) -> bool {                                      \
+        return !condition(curParameter, prefixList, environment);              \
+    }
+#define ELSE_(...) __VA_ARGS__
 #define OPT_(...)                                                              \
     InstructionGenerator::ParameterGeneratorSelectorType::                     \
         SelectorGeneratorPair {                                                \
@@ -167,89 +176,85 @@ auto makePrefixList(T noPrefix, Ts... prefixList) {
 #define ON_ALWAYS_                                                             \
     CONDITION_([](const auto& curParameter, const auto& prefixList,            \
                   const auto& environment) -> bool { return true; })
-#define ON_X16_                                                                \
-    CONDITION_([](const auto& curParameter, const auto& prefixList,            \
-                  const auto& environment) -> bool {                           \
-        if (environment._defaultAdressMode ==                                  \
-                X86Environment::X86AddressMode::X16 &&                         \
-            curParameter.isAffectedByAddressSize() &&                          \
-            std::ranges::count(prefixList, ADDRESS_SIZE_OVERRIDE_PREFIX) == 0) \
-            return true;                                                       \
-        if (environment._defaultParameterMode ==                               \
-                X86Environment::X86ParameterMode::X16 &&                       \
-            curParameter.isAffectedByOperandSize() &&                          \
-            std::ranges::count(prefixList, OPERAND_SIZE_OVERRIDE_PREFIX) == 0) \
-            return true;                                                       \
-        if (environment._defaultAdressMode ==                                  \
-                X86Environment::X86AddressMode::X32 &&                         \
-            curParameter.isAffectedByAddressSize() &&                          \
-            std::ranges::count(prefixList, ADDRESS_SIZE_OVERRIDE_PREFIX) != 0) \
-            return true;                                                       \
-        if (environment._defaultParameterMode ==                               \
-                X86Environment::X86ParameterMode::X32 &&                       \
-            curParameter.isAffectedByOperandSize() &&                          \
-            std::ranges::count(prefixList, OPERAND_SIZE_OVERRIDE_PREFIX) != 0) \
-            return true;                                                       \
-        return false;                                                          \
-    })
 
-#define ON_X32_                                                                \
+namespace {
+auto calculateAddressMode(const auto& curParameter, const auto& prefixList,
+                          const auto& environment) {
+    auto mode = environment._defaultAdressMode;
+
+    if (curParameter.isAffectedByAddressSize()) {
+        bool overridePrefix =
+            std::ranges::count(prefixList, ADDRESS_SIZE_OVERRIDE_PREFIX);
+        if (environment._defaultInstructionMode ==
+            X86Environment::X86InstructionMode::LEGACY) {
+            if (mode == X86Environment::X86AddressMode::X16 && overridePrefix)
+                mode = X86Environment::X86AddressMode::X32;
+            else if (mode == X86Environment::X86AddressMode::X32 &&
+                     overridePrefix)
+                mode = X86Environment::X86AddressMode::X16;
+        } else if (environment._defaultInstructionMode ==
+                   X86Environment::X86InstructionMode::X64) {
+            if (mode == X86Environment::X86AddressMode::X64 && overridePrefix)
+                mode = X86Environment::X86AddressMode::X32;
+            else if (mode == X86Environment::X86AddressMode::X32 &&
+                     overridePrefix)
+                mode = X86Environment::X86AddressMode::X64;
+        }
+    }
+    return mode;
+}
+auto calculateParameterMode(const auto& curParameter, const auto& prefixList,
+                            const auto& environment) {
+    auto mode = environment._defaultParameterMode;
+
+    if (curParameter.isAffectedByOperandSize()) {
+        bool overridePrefix =
+            std::ranges::count(prefixList, OPERAND_SIZE_OVERRIDE_PREFIX);
+        if (environment._defaultInstructionMode ==
+            X86Environment::X86InstructionMode::LEGACY) {
+            if (mode == X86Environment::X86ParameterMode::X16 && overridePrefix)
+                mode = X86Environment::X86ParameterMode::X32;
+            else if (mode == X86Environment::X86ParameterMode::X32 &&
+                     overridePrefix)
+                mode = X86Environment::X86ParameterMode::X16;
+        } else if (environment._defaultInstructionMode ==
+                   X86Environment::X86InstructionMode::X64) {
+            // The rex prefix will override the operand size override prefix.
+            if (std::ranges::count_if(prefixList, [](const auto& prefix) {
+                    return ((prefix.value & std::byte{0x48}) ==
+                            std::byte{0x48});
+                }) != 0) {
+                mode = X86Environment::X86ParameterMode::X64;
+            } else if (mode == X86Environment::X86ParameterMode::X16 &&
+                       overridePrefix)
+                mode = X86Environment::X86ParameterMode::X32;
+            else if (mode == X86Environment::X86ParameterMode::X32 &&
+                     overridePrefix)
+                mode = X86Environment::X86ParameterMode::X16;
+        }
+    }
+    return mode;
+}
+}; // namespace
+
+#define SWITCH_LAMBDA_(func, type, size)                                       \
     CONDITION_([](const auto& curParameter, const auto& prefixList,            \
                   const auto& environment) -> bool {                           \
-        if (environment._defaultAdressMode ==                                  \
-                X86Environment::X86AddressMode::X16 &&                         \
-            curParameter.isAffectedByAddressSize() &&                          \
-            std::ranges::count(prefixList, ADDRESS_SIZE_OVERRIDE_PREFIX) != 0) \
-            return true;                                                       \
-        if (environment._defaultParameterMode ==                               \
-                X86Environment::X86ParameterMode::X16 &&                       \
-            curParameter.isAffectedByOperandSize() &&                          \
-            std::ranges::count(prefixList, OPERAND_SIZE_OVERRIDE_PREFIX) != 0) \
-            return true;                                                       \
-        if (environment._defaultAdressMode ==                                  \
-                X86Environment::X86AddressMode::X32 &&                         \
-            curParameter.isAffectedByAddressSize() &&                          \
-            std::ranges::count(prefixList, ADDRESS_SIZE_OVERRIDE_PREFIX) == 0) \
-            return true;                                                       \
-        if (environment._defaultParameterMode ==                               \
-                X86Environment::X86ParameterMode::X32 &&                       \
-            curParameter.isAffectedByOperandSize() &&                          \
-            std::ranges::count(prefixList, OPERAND_SIZE_OVERRIDE_PREFIX) == 0) \
-            return true;                                                       \
-        if (environment._defaultAdressMode ==                                  \
-                X86Environment::X86AddressMode::X64 &&                         \
-            curParameter.isAffectedByAddressSize() &&                          \
-            std::ranges::count(prefixList, ADDRESS_SIZE_OVERRIDE_PREFIX) != 0) \
-            return true;                                                       \
-        if (environment._defaultParameterMode ==                               \
-                X86Environment::X86ParameterMode::X64 &&                       \
-            curParameter.isAffectedByOperandSize() &&                          \
-            std::ranges::count(prefixList, OPERAND_SIZE_OVERRIDE_PREFIX) != 0) \
-            return true;                                                       \
-        return false;                                                          \
+        return func(curParameter, prefixList, environment) ==                  \
+               X86Environment::type::size;                                     \
     })
-#define ON_X64_                                                                \
-    CONDITION_([](const auto& curParameter, const auto& prefixList,            \
-                  const auto& environment) -> bool {                           \
-        if (environment._defaultAdressMode ==                                  \
-                X86Environment::X86AddressMode::X64 &&                         \
-            curParameter.isAffectedByAddressSize() &&                          \
-            std::ranges::count(prefixList, ADDRESS_SIZE_OVERRIDE_PREFIX) == 0) \
-            return true;                                                       \
-        if (environment._defaultParameterMode ==                               \
-                X86Environment::X86ParameterMode::X64 &&                       \
-            curParameter.isAffectedByOperandSize() &&                          \
-            std::ranges::count(prefixList, OPERAND_SIZE_OVERRIDE_PREFIX) == 0) \
-            return true;                                                       \
-        if (environment._defaultInstructionMode ==                             \
-                X86Environment::X86InstructionMode::X64 &&                     \
-            curParameter.isAffectedByOperandSize() &&                          \
-            std::ranges::count_if(prefixList, [](const auto& prefix) {         \
-                return ((prefix.value & std::byte{0x48}) == std::byte{0x48});  \
-            }) != 0)                                                           \
-            return true;                                                       \
-        return false;                                                          \
-    })
+#define SWITCH_ADDRESS_LAMBDA_(size)                                           \
+    SWITCH_LAMBDA_(calculateAddressMode, X86AddressMode, size)
+#define SWITCH_PARAMETER_LAMBDA_(size)                                         \
+    SWITCH_LAMBDA_(calculateParameterMode, X86ParameterMode, size)
+
+#define ON_X16_ADDRESS_ SWITCH_ADDRESS_LAMBDA_(X16)
+#define ON_X32_ADDRESS_ SWITCH_ADDRESS_LAMBDA_(X32)
+#define ON_X64_ADDRESS_ SWITCH_ADDRESS_LAMBDA_(X64)
+
+#define ON_X16_PARAMETER_ SWITCH_PARAMETER_LAMBDA_(X16)
+#define ON_X32_PARAMETER_ SWITCH_PARAMETER_LAMBDA_(X32)
+#define ON_X64_PARAMETER_ SWITCH_PARAMETER_LAMBDA_(X64)
 
 #define IF_X64_DISASSEMBLER_(disassembler, ...)                                \
     [disassembler_env]()                                                       \

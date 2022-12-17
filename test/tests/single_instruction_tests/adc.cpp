@@ -14,32 +14,30 @@ TEST_CASE("ADC", "[x86][legacy][x64]") {
         CREATE_DISASSEMBLER(disassembler);
         DECODE_INSTRUCTION_(
             disassembler,
-            INSTRUCTION_("ADC",
-                         PREFIXES_(NO_PREFIX_, ALL_RAW_PREFIXES_,
-                                   IF_X64_DISASSEMBLER_(disassembler,
-                                                        ALL_REX_PREFIXES_)),
-                         OPCODE(0x15),
-                         SWITCH_(OPT_(CONDITION_(ON_X16_), IMPLIED_("AX")),
-                                 OPT_(CONDITION_(ON_X32_), IMPLIED_("EAX")),
-                                 OPT_(CONDITION_(ON_X64_), IMPLIED_("RAX"))),
-                         SWITCH_(OPT_(CONDITION_(ON_X16_), IMM16_),
-                                 OPT_(CONDITION_(ON_X32_), IMM32_),
-                                 OPT_(CONDITION_(ON_X64_), IMM32_))));
+            INSTRUCTION_(
+                "ADC",
+                PREFIXES_(
+                    NO_PREFIX_, ALL_RAW_PREFIXES_,
+                    IF_X64_DISASSEMBLER_(disassembler, ALL_REX_PREFIXES_)),
+                OPCODE(0x15),
+                SWITCH_(OPT_(ON_X16_PARAMETER_, IMPLIED_("AX")),
+                        OPT_(ON_X32_PARAMETER_, IMPLIED_("EAX")),
+                        OPT_(ON_X64_PARAMETER_, IMPLIED_("RAX"))),
+                IF_(CONDITION_(ON_X16_PARAMETER_), IMM16_, ELSE_(IMM32_))));
     }
     SECTION("ADC RM8, IMM8") {
         CREATE_DISASSEMBLER(disassembler);
         DECODE_INSTRUCTION_(
             disassembler,
-            INSTRUCTION_("ADC",
-                         PREFIXES_(NO_PREFIX_, ALL_RAW_PREFIXES_,
-                                   IF_X64_DISASSEMBLER_(disassembler,
-                                                        ALL_REX_PREFIXES_)),
-                         OPCODE(0x15),
-                         SWITCH_(OPT_(CONDITION_(ON_X16_), IMPLIED_("AX")),
-                                 OPT_(CONDITION_(ON_X32_), IMPLIED_("EAX")),
-                                 OPT_(CONDITION_(ON_X64_), IMPLIED_("RAX"))),
-                         SWITCH_(OPT_(CONDITION_(ON_X16_), IMM16_),
-                                 OPT_(CONDITION_(ON_X32_), IMM32_),
-                                 OPT_(CONDITION_(ON_X64_), IMM32_))));
+            INSTRUCTION_(
+                "ADC",
+                PREFIXES_(
+                    NO_PREFIX_, ALL_RAW_PREFIXES_,
+                    IF_X64_DISASSEMBLER_(disassembler, ALL_REX_PREFIXES_)),
+                OPCODE(0x15),
+                SWITCH_(OPT_(ON_X16_PARAMETER_, IMPLIED_("AX")),
+                        OPT_(ON_X32_PARAMETER_, IMPLIED_("EAX")),
+                        OPT_(ON_X64_PARAMETER_, IMPLIED_("RAX"))),
+                IF_(CONDITION_(ON_X16_PARAMETER_), IMM16_, ELSE_(IMM32_))));
     }
 }
